@@ -59,10 +59,10 @@ interface PowerUp {
 // ============ CONSTANTS ============
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
-const PADDLE_WIDTH = 120;
-const PADDLE_HEIGHT = 16;
+const PADDLE_WIDTH = 130;
+const PADDLE_HEIGHT = 28;
 const BALL_RADIUS = 8;
-const BALL_SPEED = 5;
+const BALL_SPEED = 8;
 const BRICK_ROWS = 6;
 const BRICK_COLS = 10;
 const BRICK_HEIGHT = 25;
@@ -78,6 +78,15 @@ const BRICK_COLORS = [
   { color: '#8338ec', glow: '#8338ec80' },
   { color: '#3a86ff', glow: '#3a86ff80' },
 ];
+
+// Helper function to darken a hex color
+function darkenColor(hex: string, amount: number): string {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const r = Math.max(0, (num >> 16) - Math.floor(255 * amount));
+  const g = Math.max(0, ((num >> 8) & 0x00FF) - Math.floor(255 * amount));
+  const b = Math.max(0, (num & 0x0000FF) - Math.floor(255 * amount));
+  return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
+}
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -330,28 +339,119 @@ function App() {
       gs.paddle.targetX = Math.max(0, Math.min(CANVAS_WIDTH - gs.paddleWidth, gs.paddle.targetX));
       gs.paddle.x += (gs.paddle.targetX - gs.paddle.x) * 0.15 * deltaTime;
 
-      // Draw paddle with glow
-      const paddleGrad = ctx.createLinearGradient(
-        gs.paddle.x, gs.paddle.y,
-        gs.paddle.x + gs.paddleWidth, gs.paddle.y
-      );
-      paddleGrad.addColorStop(0, '#00f5d4');
-      paddleGrad.addColorStop(0.5, '#3a86ff');
-      paddleGrad.addColorStop(1, '#8338ec');
-
-      ctx.shadowColor = '#00f5d4';
-      ctx.shadowBlur = 20;
-      ctx.fillStyle = paddleGrad;
+      // Draw paddle as carriage
+      const carriageX = gs.paddle.x;
+      const carriageY = gs.paddle.y;
+      const carriageW = gs.paddleWidth;
+      const carriageH = gs.paddle.height;
+      const wheelRadius = 10;
+      
+      // Carriage body (main compartment)
+      ctx.shadowColor = '#8B4513';
+      ctx.shadowBlur = 15;
+      
+      const carriageGrad = ctx.createLinearGradient(carriageX, carriageY, carriageX, carriageY + carriageH);
+      carriageGrad.addColorStop(0, '#D2691E');
+      carriageGrad.addColorStop(0.5, '#8B4513');
+      carriageGrad.addColorStop(1, '#654321');
+      ctx.fillStyle = carriageGrad;
       ctx.beginPath();
-      ctx.roundRect(gs.paddle.x, gs.paddle.y, gs.paddleWidth, gs.paddle.height, 8);
+      ctx.roundRect(carriageX + 10, carriageY, carriageW - 20, carriageH - 12, 6);
+      ctx.fill();
+      
+      // Carriage roof/canopy
+      ctx.fillStyle = '#654321';
+      ctx.beginPath();
+      ctx.roundRect(carriageX + 15, carriageY - 4, carriageW - 30, 8, 4);
+      ctx.fill();
+      
+      // Carriage window
+      ctx.fillStyle = '#87CEEB';
+      ctx.shadowColor = '#87CEEB';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.roundRect(carriageX + carriageW * 0.3, carriageY + 4, carriageW * 0.4, carriageH * 0.4, 3);
       ctx.fill();
       ctx.shadowBlur = 0;
-
-      // Draw paddle reflection
-      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      
+      // Window frame
+      ctx.strokeStyle = '#4a2511';
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.roundRect(gs.paddle.x + 5, gs.paddle.y + 2, gs.paddleWidth - 10, gs.paddle.height / 3, 4);
+      ctx.roundRect(carriageX + carriageW * 0.3, carriageY + 4, carriageW * 0.4, carriageH * 0.4, 3);
+      ctx.stroke();
+      
+      // Decorative trim
+      ctx.strokeStyle = '#FFD700';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(carriageX + 12, carriageY + 2, carriageW - 24, carriageH - 16, 4);
+      ctx.stroke();
+      
+      // Wheels
+      const wheelY = carriageY + carriageH - 4;
+      const leftWheelX = carriageX + 25;
+      const rightWheelX = carriageX + carriageW - 25;
+      
+      // Draw left wheel
+      ctx.shadowColor = '#2d1810';
+      ctx.shadowBlur = 5;
+      ctx.fillStyle = '#2d1810';
+      ctx.beginPath();
+      ctx.arc(leftWheelX, wheelY, wheelRadius, 0, Math.PI * 2);
       ctx.fill();
+      
+      ctx.fillStyle = '#4a2511';
+      ctx.beginPath();
+      ctx.arc(leftWheelX, wheelY, wheelRadius - 2, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Wheel spokes
+      ctx.strokeStyle = '#8B4513';
+      ctx.lineWidth = 1.5;
+      for (let i = 0; i < 6; i++) {
+        const angle = (Math.PI * 2 * i) / 6 + gs.paddle.x * 0.02;
+        ctx.beginPath();
+        ctx.moveTo(leftWheelX, wheelY);
+        ctx.lineTo(leftWheelX + Math.cos(angle) * (wheelRadius - 3), wheelY + Math.sin(angle) * (wheelRadius - 3));
+        ctx.stroke();
+      }
+      
+      // Wheel hub
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.arc(leftWheelX, wheelY, 2, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Draw right wheel
+      ctx.fillStyle = '#2d1810';
+      ctx.beginPath();
+      ctx.arc(rightWheelX, wheelY, wheelRadius, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.fillStyle = '#4a2511';
+      ctx.beginPath();
+      ctx.arc(rightWheelX, wheelY, wheelRadius - 2, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Wheel spokes
+      ctx.strokeStyle = '#8B4513';
+      ctx.lineWidth = 1.5;
+      for (let i = 0; i < 6; i++) {
+        const angle = (Math.PI * 2 * i) / 6 + gs.paddle.x * 0.02;
+        ctx.beginPath();
+        ctx.moveTo(rightWheelX, wheelY);
+        ctx.lineTo(rightWheelX + Math.cos(angle) * (wheelRadius - 3), wheelY + Math.sin(angle) * (wheelRadius - 3));
+        ctx.stroke();
+      }
+      
+      // Wheel hub
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.arc(rightWheelX, wheelY, 2, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.shadowBlur = 0;
 
       if (gs.gameStarted && !gs.gameOver && !gs.gameWon) {
         // Update ball
@@ -359,8 +459,8 @@ function App() {
         gs.ball.x += gs.ball.dx * deltaTime * speedMult;
         gs.ball.y += gs.ball.dy * deltaTime * speedMult;
         
-        // Update shoe rotation (spin based on speed)
-        gs.ball.rotation += 0.15 * deltaTime * speedMult;
+        // Update boot rotation (spin based on speed)
+        gs.ball.rotation += 0.25 * deltaTime * speedMult;
 
         // Ball trail
         gs.ball.trail.push({ x: gs.ball.x, y: gs.ball.y, alpha: 1 });
@@ -515,7 +615,7 @@ function App() {
         });
       }
 
-      // Draw bricks
+      // Draw bricks (brick wall pattern)
       gs.bricks.forEach((brick) => {
         if (!brick.alive) return;
         
@@ -529,30 +629,109 @@ function App() {
         
         // Glow
         ctx.shadowColor = brick.glowColor;
-        ctx.shadowBlur = damaged ? 5 : 12;
+        ctx.shadowBlur = damaged ? 5 : 10;
         
-        // Brick body
         const brickAlpha = damaged ? 0.6 : 1;
         ctx.globalAlpha = brickAlpha;
-        ctx.fillStyle = brick.color;
+        
+        // Mortar background (the gaps between bricks)
+        ctx.fillStyle = '#3a3a3a';
         ctx.beginPath();
-        ctx.roundRect(bx, by, brick.width, brick.height, 4);
+        ctx.roundRect(bx, by, brick.width, brick.height, 2);
         ctx.fill();
         
-        // Brick highlight
-        ctx.fillStyle = 'rgba(255,255,255,0.2)';
-        ctx.beginPath();
-        ctx.roundRect(bx + 2, by + 2, brick.width - 4, brick.height / 3, 3);
-        ctx.fill();
+        // Individual bricks within the cell
+        const mortarThickness = 2;
+        const brickPadding = 1;
+        
+        // Calculate brick layout (2 bricks per row, offset pattern)
+        const brickHeight = (brick.height - mortarThickness * 3) / 2;
+        const brickWidth = (brick.width - mortarThickness * 3) / 2;
+        
+        // Draw individual bricks
+        const drawSingleBrick = (x: number, y: number, w: number, h: number, colorIdx: number) => {
+          // Brick gradient for 3D effect
+          const brickGrad = ctx.createLinearGradient(x, y, x, y + h);
+          const baseColor = brick.color;
+          brickGrad.addColorStop(0, baseColor);
+          brickGrad.addColorStop(0.3, baseColor);
+          brickGrad.addColorStop(1, darkenColor(baseColor, 0.3));
+          
+          ctx.fillStyle = brickGrad;
+          ctx.beginPath();
+          ctx.roundRect(x, y, w, h, 1);
+          ctx.fill();
+          
+          // Top highlight
+          ctx.fillStyle = 'rgba(255,255,255,0.15)';
+          ctx.beginPath();
+          ctx.roundRect(x + 1, y + 1, w - 2, h * 0.3, 1);
+          ctx.fill();
+          
+          // Texture speckles
+          ctx.fillStyle = 'rgba(0,0,0,0.1)';
+          for (let i = 0; i < 3; i++) {
+            const sx = x + Math.random() * w;
+            const sy = y + Math.random() * h;
+            ctx.fillRect(sx, sy, 1, 1);
+          }
+        };
+        
+        // Row 1: Two full bricks
+        drawSingleBrick(
+          bx + brickPadding,
+          by + brickPadding,
+          brickWidth - brickPadding,
+          brickHeight,
+          0
+        );
+        drawSingleBrick(
+          bx + brickWidth + mortarThickness + brickPadding,
+          by + brickPadding,
+          brickWidth - brickPadding,
+          brickHeight,
+          1
+        );
+        
+        // Row 2: Offset pattern (half brick, full brick, half brick)
+        const halfBrickWidth = brickWidth / 2;
+        drawSingleBrick(
+          bx + brickPadding,
+          by + brickHeight + mortarThickness * 2 + brickPadding,
+          halfBrickWidth - brickPadding,
+          brickHeight,
+          2
+        );
+        drawSingleBrick(
+          bx + halfBrickWidth + mortarThickness + brickPadding,
+          by + brickHeight + mortarThickness * 2 + brickPadding,
+          brickWidth * 2 + mortarThickness - brickPadding,
+          brickHeight,
+          3
+        );
+        drawSingleBrick(
+          bx + halfBrickWidth + brickWidth + mortarThickness * 2 + brickPadding,
+          by + brickHeight + mortarThickness * 2 + brickPadding,
+          halfBrickWidth - brickPadding,
+          brickHeight,
+          4
+        );
         
         // Crack effect for damaged bricks
         if (damaged) {
-          ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+          ctx.strokeStyle = 'rgba(0,0,0,0.7)';
           ctx.lineWidth = 2;
           ctx.beginPath();
           ctx.moveTo(bx + brick.width * 0.3, by);
           ctx.lineTo(bx + brick.width * 0.5, by + brick.height * 0.5);
           ctx.lineTo(bx + brick.width * 0.7, by + brick.height);
+          ctx.stroke();
+          
+          // Additional crack lines
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(bx + brick.width * 0.5, by + brick.height * 0.5);
+          ctx.lineTo(bx + brick.width * 0.6, by + brick.height * 0.3);
           ctx.stroke();
         }
         

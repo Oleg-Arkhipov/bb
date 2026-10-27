@@ -579,108 +579,127 @@ function App() {
         ctx.shadowBlur = 0;
       });
 
-      // Draw ball trail (sparkle trail behind shoe)
+      // Draw ball trail (dust trail behind boot)
       gs.ball.trail.forEach((t, i) => {
-        const alpha = t.alpha * 0.4;
+        const alpha = t.alpha * 0.35;
         const radius = gs.ball.radius * (i / gs.ball.trail.length) * 0.6;
-        ctx.fillStyle = `rgba(255, 100, 50, ${alpha})`;
+        ctx.fillStyle = `rgba(139, 69, 19, ${alpha})`;
         ctx.beginPath();
         ctx.arc(t.x, t.y, radius, 0, Math.PI * 2);
         ctx.fill();
       });
 
-      // Draw shoe (ball)
+      // Draw boot (ball)
       if (!gs.gameOver && !gs.gameWon) {
         const rotation = gs.ball.rotation;
-        const shoeSize = gs.ball.radius * 2.2;
+        const bootSize = gs.ball.radius * 2.4;
         
         ctx.save();
         ctx.translate(gs.ball.x, gs.ball.y);
         ctx.rotate(rotation);
         
         // Glow effect
-        ctx.shadowColor = '#ff6b35';
-        ctx.shadowBlur = 20;
+        ctx.shadowColor = '#8B4513';
+        ctx.shadowBlur = 15;
         
-        // Shoe sole (bottom)
-        ctx.fillStyle = '#1a1a2e';
+        // Boot sole (bottom - thick)
+        ctx.fillStyle = '#2d1810';
         ctx.beginPath();
-        ctx.moveTo(-shoeSize * 0.8, shoeSize * 0.15);
-        ctx.lineTo(shoeSize * 0.9, shoeSize * 0.15);
-        ctx.lineTo(shoeSize * 1.0, shoeSize * 0.05);
-        ctx.lineTo(shoeSize * 0.95, -shoeSize * 0.05);
-        ctx.lineTo(-shoeSize * 0.7, -shoeSize * 0.05);
+        ctx.moveTo(-bootSize * 0.8, bootSize * 0.2);
+        ctx.lineTo(bootSize * 0.95, bootSize * 0.2);
+        ctx.lineTo(bootSize * 1.05, bootSize * 0.1);
+        ctx.lineTo(bootSize * 1.0, bootSize * 0.0);
+        ctx.lineTo(-bootSize * 0.75, bootSize * 0.0);
         ctx.closePath();
         ctx.fill();
         
         // Sole tread marks
-        ctx.strokeStyle = '#333355';
+        ctx.strokeStyle = '#1a0f0a';
         ctx.lineWidth = 1;
-        for (let i = -0.5; i < 0.8; i += 0.25) {
+        for (let i = -0.5; i < 0.9; i += 0.2) {
           ctx.beginPath();
-          ctx.moveTo(shoeSize * i, shoeSize * 0.15);
-          ctx.lineTo(shoeSize * i, shoeSize * 0.05);
+          ctx.moveTo(bootSize * i, bootSize * 0.2);
+          ctx.lineTo(bootSize * i, bootSize * 0.1);
           ctx.stroke();
         }
         
-        // Shoe body (main upper)
-        const shoeGrad = ctx.createLinearGradient(-shoeSize, -shoeSize * 0.5, shoeSize, shoeSize * 0.2);
-        shoeGrad.addColorStop(0, '#ff006e');
-        shoeGrad.addColorStop(0.5, '#ff4d6d');
-        shoeGrad.addColorStop(1, '#ff006e');
-        ctx.fillStyle = shoeGrad;
+        // Boot body (main leather)
+        const bootGrad = ctx.createLinearGradient(-bootSize, -bootSize * 0.8, bootSize, bootSize * 0.2);
+        bootGrad.addColorStop(0, '#8B4513');
+        bootGrad.addColorStop(0.3, '#A0522D');
+        bootGrad.addColorStop(0.7, '#8B4513');
+        bootGrad.addColorStop(1, '#654321');
+        ctx.fillStyle = bootGrad;
+        
+        // Boot shape - tall shaft with toe
         ctx.beginPath();
-        ctx.moveTo(-shoeSize * 0.7, -shoeSize * 0.05);
-        ctx.quadraticCurveTo(-shoeSize * 0.8, -shoeSize * 0.5, -shoeSize * 0.4, -shoeSize * 0.55);
-        ctx.lineTo(shoeSize * 0.1, -shoeSize * 0.5);
-        ctx.quadraticCurveTo(shoeSize * 0.5, -shoeSize * 0.45, shoeSize * 0.8, -shoeSize * 0.2);
-        ctx.quadraticCurveTo(shoeSize * 1.0, -shoeSize * 0.05, shoeSize * 0.95, -shoeSize * 0.05);
-        ctx.lineTo(-shoeSize * 0.7, -shoeSize * 0.05);
+        ctx.moveTo(-bootSize * 0.75, bootSize * 0.0);
+        // Heel back
+        ctx.lineTo(-bootSize * 0.7, -bootSize * 0.1);
+        ctx.quadraticCurveTo(-bootSize * 0.75, -bootSize * 0.6, -bootSize * 0.5, -bootSize * 0.8);
+        // Top of boot shaft
+        ctx.lineTo(-bootSize * 0.1, -bootSize * 0.85);
+        ctx.quadraticCurveTo(bootSize * 0.0, -bootSize * 0.8, bootSize * 0.05, -bootSize * 0.7);
+        // Front of shaft going down to toe
+        ctx.quadraticCurveTo(bootSize * 0.15, -bootSize * 0.4, bootSize * 0.4, -bootSize * 0.2);
+        // Toe
+        ctx.quadraticCurveTo(bootSize * 0.9, -bootSize * 0.15, bootSize * 1.0, bootSize * 0.0);
+        ctx.lineTo(-bootSize * 0.75, bootSize * 0.0);
         ctx.closePath();
         ctx.fill();
         
-        // Shoe tongue/top opening
-        ctx.fillStyle = '#2a0a3e';
+        // Boot shaft opening (top)
+        ctx.fillStyle = '#3d2415';
         ctx.beginPath();
-        ctx.moveTo(-shoeSize * 0.3, -shoeSize * 0.5);
-        ctx.quadraticCurveTo(-shoeSize * 0.1, -shoeSize * 0.65, shoeSize * 0.1, -shoeSize * 0.5);
-        ctx.lineTo(shoeSize * 0.05, -shoeSize * 0.45);
-        ctx.quadraticCurveTo(-shoeSize * 0.1, -shoeSize * 0.55, -shoeSize * 0.25, -shoeSize * 0.45);
-        ctx.closePath();
+        ctx.ellipse(-bootSize * 0.3, -bootSize * 0.82, bootSize * 0.25, bootSize * 0.06, 0, 0, Math.PI * 2);
         ctx.fill();
         
-        // Swoosh/stripe design
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
+        // Leather stitching lines
+        ctx.strokeStyle = '#5c3317';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([2, 2]);
         ctx.beginPath();
-        ctx.moveTo(-shoeSize * 0.5, -shoeSize * 0.15);
-        ctx.quadraticCurveTo(0, -shoeSize * 0.4, shoeSize * 0.6, -shoeSize * 0.2);
+        ctx.moveTo(-bootSize * 0.6, -bootSize * 0.1);
+        ctx.quadraticCurveTo(-bootSize * 0.55, -bootSize * 0.5, -bootSize * 0.35, -bootSize * 0.75);
         ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-bootSize * 0.1, -bootSize * 0.75);
+        ctx.quadraticCurveTo(bootSize * 0.1, -bootSize * 0.5, bootSize * 0.3, -bootSize * 0.25);
+        ctx.stroke();
+        ctx.setLineDash([]);
         
         // Laces
-        ctx.strokeStyle = '#ffffff';
+        ctx.strokeStyle = '#2d1810';
         ctx.lineWidth = 1.5;
-        for (let i = 0; i < 3; i++) {
-          const lx = -shoeSize * 0.2 + i * shoeSize * 0.12;
+        for (let i = 0; i < 4; i++) {
+          const ly = -bootSize * 0.3 - i * bootSize * 0.12;
+          const lx = -bootSize * 0.15 + i * bootSize * 0.05;
           ctx.beginPath();
-          ctx.moveTo(lx, -shoeSize * 0.48);
-          ctx.lineTo(lx + shoeSize * 0.06, -shoeSize * 0.38);
+          ctx.moveTo(lx - bootSize * 0.08, ly);
+          ctx.lineTo(lx + bootSize * 0.08, ly);
           ctx.stroke();
         }
         
-        // Toe cap highlight
-        ctx.fillStyle = 'rgba(255,255,255,0.15)';
+        // Toe cap stitching
+        ctx.strokeStyle = '#5c3317';
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.ellipse(shoeSize * 0.7, -shoeSize * 0.15, shoeSize * 0.2, shoeSize * 0.12, 0, 0, Math.PI * 2);
+        ctx.arc(bootSize * 0.7, -bootSize * 0.05, bootSize * 0.2, Math.PI * 0.8, Math.PI * 1.8);
+        ctx.stroke();
+        
+        // Leather highlight/shine
+        ctx.fillStyle = 'rgba(255,220,180,0.2)';
+        ctx.beginPath();
+        ctx.ellipse(-bootSize * 0.4, -bootSize * 0.5, bootSize * 0.15, bootSize * 0.25, -0.3, 0, Math.PI * 2);
         ctx.fill();
         
-        // Heel accent
-        ctx.fillStyle = '#8338ec';
+        // Heel reinforcement
+        ctx.fillStyle = '#654321';
         ctx.beginPath();
-        ctx.moveTo(-shoeSize * 0.7, -shoeSize * 0.05);
-        ctx.quadraticCurveTo(-shoeSize * 0.75, -shoeSize * 0.3, -shoeSize * 0.55, -shoeSize * 0.4);
-        ctx.lineTo(-shoeSize * 0.45, -shoeSize * 0.35);
-        ctx.quadraticCurveTo(-shoeSize * 0.6, -shoeSize * 0.25, -shoeSize * 0.6, -shoeSize * 0.05);
+        ctx.moveTo(-bootSize * 0.75, bootSize * 0.0);
+        ctx.quadraticCurveTo(-bootSize * 0.72, -bootSize * 0.3, -bootSize * 0.6, -bootSize * 0.4);
+        ctx.lineTo(-bootSize * 0.5, -bootSize * 0.35);
+        ctx.quadraticCurveTo(-bootSize * 0.6, -bootSize * 0.2, -bootSize * 0.65, bootSize * 0.0);
         ctx.closePath();
         ctx.fill();
         

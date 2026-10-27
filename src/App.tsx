@@ -122,10 +122,52 @@ function App() {
     const bricks: Brick[] = [];
     const brickWidth = (CANVAS_WIDTH - 2 * BRICK_SIDE_OFFSET - (BRICK_COLS - 1) * BRICK_PADDING) / BRICK_COLS;
     
+    // Base probability increases with level (60% base + 3% per level, capped at 95%)
+    const baseProbability = Math.min(0.95, 0.6 + lvl * 0.03);
+    
+    // Multi-hit probability increases with level
+    const multiHitChance = Math.min(0.5, 0.1 + lvl * 0.05);
+    
+    // Generate random brick layout
     for (let row = 0; row < BRICK_ROWS; row++) {
       for (let col = 0; col < BRICK_COLS; col++) {
-        const colorIdx = row % BRICK_COLORS.length;
-        const maxHits = row < 2 && lvl > 1 ? 2 : 1;
+        // Random chance to place a brick at this position
+        if (Math.random() < baseProbability) {
+          const colorIdx = Math.floor(Math.random() * BRICK_COLORS.length);
+          
+          // Higher levels have more multi-hit bricks
+          const maxHits = Math.random() < multiHitChance ? Math.min(3, 1 + Math.floor(lvl / 3)) : 1;
+          
+          bricks.push({
+            x: BRICK_SIDE_OFFSET + col * (brickWidth + BRICK_PADDING),
+            y: BRICK_TOP_OFFSET + row * (BRICK_HEIGHT + BRICK_PADDING),
+            width: brickWidth,
+            height: BRICK_HEIGHT,
+            color: BRICK_COLORS[colorIdx].color,
+            glowColor: BRICK_COLORS[colorIdx].glow,
+            hits: 0,
+            maxHits,
+            alive: true,
+            shakeX: 0,
+            shakeY: 0,
+          });
+        }
+      }
+    }
+    
+    // Ensure at least 5 bricks exist (in case of very unlucky RNG)
+    while (bricks.length < 5) {
+      const row = Math.floor(Math.random() * BRICK_ROWS);
+      const col = Math.floor(Math.random() * BRICK_COLS);
+      const colorIdx = Math.floor(Math.random() * BRICK_COLORS.length);
+      
+      // Check if position is already occupied
+      const exists = bricks.some(b => 
+        b.x === BRICK_SIDE_OFFSET + col * (brickWidth + BRICK_PADDING) &&
+        b.y === BRICK_TOP_OFFSET + row * (BRICK_HEIGHT + BRICK_PADDING)
+      );
+      
+      if (!exists) {
         bricks.push({
           x: BRICK_SIDE_OFFSET + col * (brickWidth + BRICK_PADDING),
           y: BRICK_TOP_OFFSET + row * (BRICK_HEIGHT + BRICK_PADDING),
@@ -134,13 +176,14 @@ function App() {
           color: BRICK_COLORS[colorIdx].color,
           glowColor: BRICK_COLORS[colorIdx].glow,
           hits: 0,
-          maxHits,
+          maxHits: 1,
           alive: true,
           shakeX: 0,
           shakeY: 0,
         });
       }
     }
+    
     return bricks;
   }, []);
 
@@ -478,13 +521,12 @@ function App() {
           spawnParticles(gs.ball.x, gs.ball.y, '#ffbe0b', 25);
           gs.screenShake = 10;
           
-          if (gs.level >= 3) {
-            gs.gameWon = true;
-            setGameWon(true);
-            spawnParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, '#ffbe0b', 50);
-          } else {
-            initGame(gs.level + 1, true);
-          }
+          // Bonus points for reaching the top
+          gs.score += 100 * gs.level;
+          setScore(gs.score);
+          
+          // Always advance to the next level (infinite levels)
+          initGame(gs.level + 1, true);
         }
 
         // Paddle collision

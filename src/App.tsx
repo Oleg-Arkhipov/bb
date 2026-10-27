@@ -104,6 +104,7 @@ function App() {
     gameStarted: boolean;
     gameOver: boolean;
     gameWon: boolean;
+    waitingForClick: boolean;
     screenShake: number;
     paddleWidth: number;
     ballSpeedMultiplier: number;
@@ -216,6 +217,7 @@ function App() {
     gs.screenShake = 0;
     gs.paddleWidth = PADDLE_WIDTH;
     gs.ballSpeedMultiplier = 1;
+    gs.waitingForClick = true;
     if (!keepScore) {
       gs.score = 0;
       gs.lives = 3;
@@ -311,6 +313,7 @@ function App() {
       gameStarted: false,
       gameOver: false,
       gameWon: false,
+      waitingForClick: true,
       screenShake: 0,
       paddleWidth: PADDLE_WIDTH,
       ballSpeedMultiplier: 1,
@@ -328,7 +331,8 @@ function App() {
     const handleClick = () => {
       const gs = gameStateRef.current;
       if (!gs) return;
-      if (!gs.gameStarted && !gs.gameOver && !gs.gameWon) {
+      if (gs.waitingForClick) {
+        gs.waitingForClick = false;
         gs.gameStarted = true;
         setGameStarted(true);
       } else if (gs.gameOver || gs.gameWon) {
@@ -496,7 +500,7 @@ function App() {
       
       ctx.shadowBlur = 0;
 
-      if (gs.gameStarted && !gs.gameOver && !gs.gameWon) {
+      if (gs.gameStarted && !gs.gameOver && !gs.gameWon && !gs.waitingForClick) {
         // Update ball
         const speedMult = gs.ballSpeedMultiplier;
         gs.ball.x += gs.ball.dx * deltaTime * speedMult;
@@ -564,6 +568,7 @@ function App() {
             gs.ball.rotation = 0;
             gs.ball.trail = [];
             gs.combo = 0;
+            gs.waitingForClick = true;
             setCombo(0);
           }
         }
@@ -956,7 +961,7 @@ function App() {
       }
 
       // Draw UI overlays
-      if (!gs.gameStarted && !gs.gameOver && !gs.gameWon) {
+      if (!gs.gameStarted && !gs.gameOver && !gs.gameWon && gs.waitingForClick) {
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         
@@ -979,6 +984,25 @@ function App() {
         ctx.fillStyle = '#ffffff80';
         ctx.fillText('Move mouse to control paddle', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
         ctx.fillText('Hit the top edge to advance to the next level!', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 75);
+      } else if (gs.gameStarted && gs.waitingForClick && !gs.gameOver && !gs.gameWon) {
+        // Show "Click to continue" overlay for level start or after losing a life
+        ctx.fillStyle = 'rgba(0,0,0,0.4)';
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        
+        ctx.shadowColor = '#ffbe0b';
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 36px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`Level ${gs.level}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 30);
+        
+        ctx.shadowColor = '#00f5d4';
+        ctx.shadowBlur = 15;
+        ctx.font = '22px Arial';
+        ctx.fillStyle = '#00f5d4';
+        ctx.fillText('Click to Continue', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 20);
+        ctx.shadowBlur = 0;
       }
 
       if (gs.gameOver) {

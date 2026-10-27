@@ -8,6 +8,7 @@ interface Ball {
   dy: number;
   radius: number;
   speed: number;
+  rotation: number;
   trail: { x: number; y: number; alpha: number }[];
 }
 
@@ -145,6 +146,7 @@ function App() {
       dy: -BALL_SPEED,
       radius: BALL_RADIUS,
       speed: BALL_SPEED,
+      rotation: 0,
       trail: [],
     };
     gs.paddle = {
@@ -236,6 +238,7 @@ function App() {
         dy: -BALL_SPEED,
         radius: BALL_RADIUS,
         speed: BALL_SPEED,
+        rotation: 0,
         trail: [],
       },
       paddle: {
@@ -355,6 +358,9 @@ function App() {
         const speedMult = gs.ballSpeedMultiplier;
         gs.ball.x += gs.ball.dx * deltaTime * speedMult;
         gs.ball.y += gs.ball.dy * deltaTime * speedMult;
+        
+        // Update shoe rotation (spin based on speed)
+        gs.ball.rotation += 0.15 * deltaTime * speedMult;
 
         // Ball trail
         gs.ball.trail.push({ x: gs.ball.x, y: gs.ball.y, alpha: 1 });
@@ -405,6 +411,7 @@ function App() {
             gs.ball.y = CANVAS_HEIGHT - 60;
             gs.ball.dx = BALL_SPEED * (Math.random() > 0.5 ? 1 : -1);
             gs.ball.dy = -BALL_SPEED;
+            gs.ball.rotation = 0;
             gs.ball.trail = [];
             gs.combo = 0;
             setCombo(0);
@@ -572,34 +579,113 @@ function App() {
         ctx.shadowBlur = 0;
       });
 
-      // Draw ball trail
+      // Draw ball trail (sparkle trail behind shoe)
       gs.ball.trail.forEach((t, i) => {
-        const alpha = t.alpha * 0.5;
-        const radius = gs.ball.radius * (i / gs.ball.trail.length) * 0.8;
-        ctx.fillStyle = `rgba(58, 134, 255, ${alpha})`;
+        const alpha = t.alpha * 0.4;
+        const radius = gs.ball.radius * (i / gs.ball.trail.length) * 0.6;
+        ctx.fillStyle = `rgba(255, 100, 50, ${alpha})`;
         ctx.beginPath();
         ctx.arc(t.x, t.y, radius, 0, Math.PI * 2);
         ctx.fill();
       });
 
-      // Draw ball
+      // Draw shoe (ball)
       if (!gs.gameOver && !gs.gameWon) {
-        ctx.shadowColor = '#3a86ff';
-        ctx.shadowBlur = 25;
+        const rotation = gs.ball.rotation;
+        const shoeSize = gs.ball.radius * 2.2;
         
-        const ballGrad = ctx.createRadialGradient(
-          gs.ball.x - 2, gs.ball.y - 2, 0,
-          gs.ball.x, gs.ball.y, gs.ball.radius
-        );
-        ballGrad.addColorStop(0, '#ffffff');
-        ballGrad.addColorStop(0.4, '#a0d2ff');
-        ballGrad.addColorStop(1, '#3a86ff');
+        ctx.save();
+        ctx.translate(gs.ball.x, gs.ball.y);
+        ctx.rotate(rotation);
         
-        ctx.fillStyle = ballGrad;
+        // Glow effect
+        ctx.shadowColor = '#ff6b35';
+        ctx.shadowBlur = 20;
+        
+        // Shoe sole (bottom)
+        ctx.fillStyle = '#1a1a2e';
         ctx.beginPath();
-        ctx.arc(gs.ball.x, gs.ball.y, gs.ball.radius, 0, Math.PI * 2);
+        ctx.moveTo(-shoeSize * 0.8, shoeSize * 0.15);
+        ctx.lineTo(shoeSize * 0.9, shoeSize * 0.15);
+        ctx.lineTo(shoeSize * 1.0, shoeSize * 0.05);
+        ctx.lineTo(shoeSize * 0.95, -shoeSize * 0.05);
+        ctx.lineTo(-shoeSize * 0.7, -shoeSize * 0.05);
+        ctx.closePath();
         ctx.fill();
+        
+        // Sole tread marks
+        ctx.strokeStyle = '#333355';
+        ctx.lineWidth = 1;
+        for (let i = -0.5; i < 0.8; i += 0.25) {
+          ctx.beginPath();
+          ctx.moveTo(shoeSize * i, shoeSize * 0.15);
+          ctx.lineTo(shoeSize * i, shoeSize * 0.05);
+          ctx.stroke();
+        }
+        
+        // Shoe body (main upper)
+        const shoeGrad = ctx.createLinearGradient(-shoeSize, -shoeSize * 0.5, shoeSize, shoeSize * 0.2);
+        shoeGrad.addColorStop(0, '#ff006e');
+        shoeGrad.addColorStop(0.5, '#ff4d6d');
+        shoeGrad.addColorStop(1, '#ff006e');
+        ctx.fillStyle = shoeGrad;
+        ctx.beginPath();
+        ctx.moveTo(-shoeSize * 0.7, -shoeSize * 0.05);
+        ctx.quadraticCurveTo(-shoeSize * 0.8, -shoeSize * 0.5, -shoeSize * 0.4, -shoeSize * 0.55);
+        ctx.lineTo(shoeSize * 0.1, -shoeSize * 0.5);
+        ctx.quadraticCurveTo(shoeSize * 0.5, -shoeSize * 0.45, shoeSize * 0.8, -shoeSize * 0.2);
+        ctx.quadraticCurveTo(shoeSize * 1.0, -shoeSize * 0.05, shoeSize * 0.95, -shoeSize * 0.05);
+        ctx.lineTo(-shoeSize * 0.7, -shoeSize * 0.05);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Shoe tongue/top opening
+        ctx.fillStyle = '#2a0a3e';
+        ctx.beginPath();
+        ctx.moveTo(-shoeSize * 0.3, -shoeSize * 0.5);
+        ctx.quadraticCurveTo(-shoeSize * 0.1, -shoeSize * 0.65, shoeSize * 0.1, -shoeSize * 0.5);
+        ctx.lineTo(shoeSize * 0.05, -shoeSize * 0.45);
+        ctx.quadraticCurveTo(-shoeSize * 0.1, -shoeSize * 0.55, -shoeSize * 0.25, -shoeSize * 0.45);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Swoosh/stripe design
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-shoeSize * 0.5, -shoeSize * 0.15);
+        ctx.quadraticCurveTo(0, -shoeSize * 0.4, shoeSize * 0.6, -shoeSize * 0.2);
+        ctx.stroke();
+        
+        // Laces
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        for (let i = 0; i < 3; i++) {
+          const lx = -shoeSize * 0.2 + i * shoeSize * 0.12;
+          ctx.beginPath();
+          ctx.moveTo(lx, -shoeSize * 0.48);
+          ctx.lineTo(lx + shoeSize * 0.06, -shoeSize * 0.38);
+          ctx.stroke();
+        }
+        
+        // Toe cap highlight
+        ctx.fillStyle = 'rgba(255,255,255,0.15)';
+        ctx.beginPath();
+        ctx.ellipse(shoeSize * 0.7, -shoeSize * 0.15, shoeSize * 0.2, shoeSize * 0.12, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Heel accent
+        ctx.fillStyle = '#8338ec';
+        ctx.beginPath();
+        ctx.moveTo(-shoeSize * 0.7, -shoeSize * 0.05);
+        ctx.quadraticCurveTo(-shoeSize * 0.75, -shoeSize * 0.3, -shoeSize * 0.55, -shoeSize * 0.4);
+        ctx.lineTo(-shoeSize * 0.45, -shoeSize * 0.35);
+        ctx.quadraticCurveTo(-shoeSize * 0.6, -shoeSize * 0.25, -shoeSize * 0.6, -shoeSize * 0.05);
+        ctx.closePath();
+        ctx.fill();
+        
         ctx.shadowBlur = 0;
+        ctx.restore();
       }
 
       // Draw particles

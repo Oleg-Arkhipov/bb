@@ -474,9 +474,17 @@ function App() {
           spawnParticles(gs.ball.x, gs.ball.y, '#ffffff', 5);
         }
         if (gs.ball.y - gs.ball.radius <= 0) {
-          gs.ball.dy = -gs.ball.dy;
-          gs.ball.y = gs.ball.radius;
-          spawnParticles(gs.ball.x, gs.ball.y, '#ffffff', 5);
+          // Hit top edge - advance to next level!
+          spawnParticles(gs.ball.x, gs.ball.y, '#ffbe0b', 25);
+          gs.screenShake = 10;
+          
+          if (gs.level >= 3) {
+            gs.gameWon = true;
+            setGameWon(true);
+            spawnParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, '#ffbe0b', 50);
+          } else {
+            initGame(gs.level + 1, true);
+          }
         }
 
         // Paddle collision
@@ -573,16 +581,7 @@ function App() {
           }
         });
 
-        // Check win condition
-        if (gs.bricks.every(b => !b.alive)) {
-          if (gs.level >= 3) {
-            gs.gameWon = true;
-            setGameWon(true);
-            spawnParticles(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, '#ffbe0b', 50);
-          } else {
-            initGame(gs.level + 1, true);
-          }
-        }
+        // Note: Level progression now happens when boot hits top edge
 
         // Update power-ups
         gs.powerUps = gs.powerUps.filter(pu => {
@@ -936,7 +935,8 @@ function App() {
         
         ctx.font = '14px Arial';
         ctx.fillStyle = '#ffffff80';
-        ctx.fillText('Move mouse to control paddle', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 60);
+        ctx.fillText('Move mouse to control paddle', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
+        ctx.fillText('Hit the top edge to advance to the next level!', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 75);
       }
 
       if (gs.gameOver) {
@@ -1042,7 +1042,7 @@ function App() {
       <div className="w-full max-w-[800px] mt-4 px-2">
         <div className="flex justify-between items-center text-xs text-gray-600">
           <span>🖱️ Mouse to move paddle</span>
-          <span>💥 Break all bricks to advance</span>
+          <span>⬆️ Hit the top edge to advance</span>
           <span>⚡ Catch power-ups for bonuses</span>
         </div>
       </div>

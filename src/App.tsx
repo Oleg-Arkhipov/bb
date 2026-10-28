@@ -323,12 +323,13 @@ function App() {
         // Use movementX for relative movement when pointer is locked
         if (document.pointerLockElement === canvas) {
           gameStateRef.current.mouseX += e.movementX * scaleX;
-          // Clamp to canvas bounds
-          gameStateRef.current.mouseX = Math.max(0, Math.min(CANVAS_WIDTH, gameStateRef.current.mouseX));
         } else {
           // Fallback to absolute positioning if pointer lock is not active
           gameStateRef.current.mouseX = (e.clientX - rect.left) * scaleX;
         }
+        
+        // Always clamp to canvas bounds
+        gameStateRef.current.mouseX = Math.max(0, Math.min(CANVAS_WIDTH, gameStateRef.current.mouseX));
       }
     };
 
@@ -360,18 +361,9 @@ function App() {
       }
     };
 
-    const handleMouseLeave = () => {
-      // Keep the last known position when mouse leaves
-      // This prevents the paddle from going out of bounds
-      if (gameStateRef.current && document.pointerLockElement !== canvas) {
-        // Clamp to canvas bounds
-        gameStateRef.current.mouseX = Math.max(0, Math.min(CANVAS_WIDTH, gameStateRef.current.mouseX));
-      }
-    };
-
-    canvas.addEventListener('mousemove', handleMouseMove);
+    // Listen on document to track mouse even when it leaves canvas
+    document.addEventListener('mousemove', handleMouseMove);
     canvas.addEventListener('mousedown', handleMouseDown);
-    canvas.addEventListener('mouseleave', handleMouseLeave);
     document.addEventListener('pointerlockchange', handlePointerLockChange);
 
     let lastTime = 0;
@@ -1089,9 +1081,8 @@ function App() {
 
     return () => {
       cancelAnimationFrame(animationRef.current);
-      canvas.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mousemove', handleMouseMove);
       canvas.removeEventListener('mousedown', handleMouseDown);
-      canvas.removeEventListener('mouseleave', handleMouseLeave);
       document.removeEventListener('pointerlockchange', handlePointerLockChange);
       if (document.pointerLockElement === canvas) {
         document.exitPointerLock();
@@ -1130,13 +1121,13 @@ function App() {
       </div>
 
       {/* Game Canvas */}
-      <div className="relative rounded-xl overflow-hidden border border-gray-800 shadow-2xl shadow-blue-900/20">
+      <div className="relative rounded-xl overflow-hidden border border-gray-800 shadow-2xl shadow-blue-900/20" style={{ cursor: 'none' }}>
         <canvas
           ref={canvasRef}
           width={CANVAS_WIDTH}
           height={CANVAS_HEIGHT}
-          className="block cursor-none max-w-full h-auto"
-          style={{ imageRendering: 'auto', cursor: 'none' }}
+          className="block max-w-full h-auto"
+          style={{ imageRendering: 'auto', cursor: 'none', touchAction: 'none' }}
           tabIndex={0}
         />
       </div>

@@ -28,9 +28,17 @@ body {
 
 canvas {
   display: block;
-  cursor: none;
 }
 
 canvas:focus {
   outline: none;
+}
+
+/* Hide cursor on the entire game area */
+.relative[style*="cursor: none"] {
+  cursor: none !important;
+}
+
+.relative[style*="cursor: none"] * {
+  cursor: none !important;
 }

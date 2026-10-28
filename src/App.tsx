@@ -71,12 +71,7 @@ const BRICK_TOP_OFFSET = 60;
 const BRICK_SIDE_OFFSET = 20;
 
 const BRICK_COLORS = [
-  { color: '#ff006e', glow: '#ff006e80' },
-  { color: '#fb5607', glow: '#fb560780' },
-  { color: '#ffbe0b', glow: '#ffbe0b80' },
-  { color: '#00f5d4', glow: '#00f5d480' },
-  { color: '#8338ec', glow: '#8338ec80' },
-  { color: '#3a86ff', glow: '#3a86ff80' },
+  { color: '#A0522D', glow: '#A0522D80' }, // Classic brick color (sienna)
 ];
 
 // Helper function to darken a hex color
@@ -134,7 +129,7 @@ function App() {
       for (let col = 0; col < BRICK_COLS; col++) {
         // Random chance to place a brick at this position
         if (Math.random() < baseProbability) {
-          const colorIdx = Math.floor(Math.random() * BRICK_COLORS.length);
+          const colorIdx = 0; // Classic brick color
           
           // Higher levels have more multi-hit bricks
           const maxHits = Math.random() < multiHitChance ? Math.min(3, 1 + Math.floor(lvl / 3)) : 1;
@@ -160,7 +155,7 @@ function App() {
     while (bricks.length < 5) {
       const row = Math.floor(Math.random() * BRICK_ROWS);
       const col = Math.floor(Math.random() * BRICK_COLS);
-      const colorIdx = Math.floor(Math.random() * BRICK_COLORS.length);
+      const colorIdx = 0; // Classic brick color
       
       // Check if position is already occupied
       const exists = bricks.some(b => 

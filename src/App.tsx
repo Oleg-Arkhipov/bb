@@ -966,7 +966,7 @@ function App() {
         ctx.font = 'bold 48px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('NEON ARKANOID', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 40);
+        ctx.fillText('BOOT BREAKER LIMBO', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 40);
         
         ctx.shadowColor = '#00f5d4';
         ctx.shadowBlur = 15;

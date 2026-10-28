@@ -333,15 +333,19 @@ function App() {
       }
     };
 
-    const handleMouseDown = (e: MouseEvent) => {
+    const handleCanvasClick = (e: MouseEvent) => {
       const gs = gameStateRef.current;
       if (!gs) return;
       
-      // Request pointer lock on mousedown (more reliable than click)
+      // Focus canvas and request pointer lock
+      canvas.focus();
+      
       if (document.pointerLockElement !== canvas) {
-        canvas.requestPointerLock().catch(err => {
-          console.warn('Pointer lock failed:', err);
-        });
+        try {
+          canvas.requestPointerLock();
+        } catch (err) {
+          console.warn('Pointer lock request failed:', err);
+        }
       }
       
       if (gs.waitingForClick) {
@@ -354,17 +358,23 @@ function App() {
     };
 
     const handlePointerLockChange = () => {
-      // Update UI state when pointer lock changes
-      if (document.pointerLockElement !== canvas) {
-        // Pointer lock was released
+      // Pointer lock state changed
+      if (document.pointerLockElement === canvas) {
+        console.log('Pointer lock acquired');
+      } else {
         console.log('Pointer lock released');
       }
     };
 
+    const handlePointerLockError = () => {
+      console.warn('Pointer lock error');
+    };
+
     // Listen on document to track mouse even when it leaves canvas
     document.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mousedown', handleMouseDown);
+    canvas.addEventListener('click', handleCanvasClick);
     document.addEventListener('pointerlockchange', handlePointerLockChange);
+    document.addEventListener('pointerlockerror', handlePointerLockError);
 
     let lastTime = 0;
     const gameLoop = (timestamp: number) => {
@@ -1005,8 +1015,9 @@ function App() {
         
         ctx.font = '14px Arial';
         ctx.fillStyle = '#ffffff80';
-        ctx.fillText('Move mouse to control paddle', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
+        ctx.fillText('Click to capture mouse • Move to control paddle', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
         ctx.fillText('Hit the top edge to advance to the next level!', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 75);
+        ctx.fillText('Press ESC to release mouse', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 100);
       } else if (gs.gameStarted && gs.waitingForClick && !gs.gameOver && !gs.gameWon) {
         // Show "Click to continue" overlay for level start or after losing a life
         ctx.fillStyle = 'rgba(0,0,0,0.4)';
@@ -1026,6 +1037,21 @@ function App() {
         ctx.fillStyle = '#00f5d4';
         ctx.fillText('Click to Continue', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 20);
         ctx.shadowBlur = 0;
+      }
+
+      // Show pointer lock indicator during gameplay
+      if (gs.gameStarted && !gs.gameOver && !gs.gameWon && !gs.waitingForClick) {
+        const isLocked = document.pointerLockElement === canvas;
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'top';
+        if (isLocked) {
+          ctx.fillStyle = '#00ff0080';
+          ctx.fillText('🔒 Mouse Captured (ESC to release)', CANVAS_WIDTH - 10, 10);
+        } else {
+          ctx.fillStyle = '#ff660080';
+          ctx.fillText('🖱️ Click to capture mouse', CANVAS_WIDTH - 10, 10);
+        }
       }
 
       if (gs.gameOver) {
@@ -1082,8 +1108,9 @@ function App() {
     return () => {
       cancelAnimationFrame(animationRef.current);
       document.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mousedown', handleMouseDown);
+      canvas.removeEventListener('click', handleCanvasClick);
       document.removeEventListener('pointerlockchange', handlePointerLockChange);
+      document.removeEventListener('pointerlockerror', handlePointerLockError);
       if (document.pointerLockElement === canvas) {
         document.exitPointerLock();
       }

@@ -332,13 +332,15 @@ function App() {
       }
     };
 
-    const handleClick = () => {
+    const handleMouseDown = (e: MouseEvent) => {
       const gs = gameStateRef.current;
       if (!gs) return;
       
-      // Request pointer lock on click
+      // Request pointer lock on mousedown (more reliable than click)
       if (document.pointerLockElement !== canvas) {
-        canvas.requestPointerLock();
+        canvas.requestPointerLock().catch(err => {
+          console.warn('Pointer lock failed:', err);
+        });
       }
       
       if (gs.waitingForClick) {
@@ -358,8 +360,18 @@ function App() {
       }
     };
 
+    const handleMouseLeave = () => {
+      // Keep the last known position when mouse leaves
+      // This prevents the paddle from going out of bounds
+      if (gameStateRef.current && document.pointerLockElement !== canvas) {
+        // Clamp to canvas bounds
+        gameStateRef.current.mouseX = Math.max(0, Math.min(CANVAS_WIDTH, gameStateRef.current.mouseX));
+      }
+    };
+
     canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('click', handleClick);
+    canvas.addEventListener('mousedown', handleMouseDown);
+    canvas.addEventListener('mouseleave', handleMouseLeave);
     document.addEventListener('pointerlockchange', handlePointerLockChange);
 
     let lastTime = 0;
@@ -1078,7 +1090,8 @@ function App() {
     return () => {
       cancelAnimationFrame(animationRef.current);
       canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('click', handleClick);
+      canvas.removeEventListener('mousedown', handleMouseDown);
+      canvas.removeEventListener('mouseleave', handleMouseLeave);
       document.removeEventListener('pointerlockchange', handlePointerLockChange);
       if (document.pointerLockElement === canvas) {
         document.exitPointerLock();
@@ -1123,7 +1136,8 @@ function App() {
           width={CANVAS_WIDTH}
           height={CANVAS_HEIGHT}
           className="block cursor-none max-w-full h-auto"
-          style={{ imageRendering: 'auto' }}
+          style={{ imageRendering: 'auto', cursor: 'none' }}
+          tabIndex={0}
         />
       </div>
 

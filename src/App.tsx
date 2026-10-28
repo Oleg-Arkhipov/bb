@@ -316,16 +316,31 @@ function App() {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = CANVAS_WIDTH / rect.width;
       if (gameStateRef.current) {
-        gameStateRef.current.mouseX = (e.clientX - rect.left) * scaleX;
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = CANVAS_WIDTH / rect.width;
+        
+        // Use movementX for relative movement when pointer is locked
+        if (document.pointerLockElement === canvas) {
+          gameStateRef.current.mouseX += e.movementX * scaleX;
+          // Clamp to canvas bounds
+          gameStateRef.current.mouseX = Math.max(0, Math.min(CANVAS_WIDTH, gameStateRef.current.mouseX));
+        } else {
+          // Fallback to absolute positioning if pointer lock is not active
+          gameStateRef.current.mouseX = (e.clientX - rect.left) * scaleX;
+        }
       }
     };
 
     const handleClick = () => {
       const gs = gameStateRef.current;
       if (!gs) return;
+      
+      // Request pointer lock on click
+      if (document.pointerLockElement !== canvas) {
+        canvas.requestPointerLock();
+      }
+      
       if (gs.waitingForClick) {
         gs.waitingForClick = false;
         gs.gameStarted = true;
@@ -335,8 +350,17 @@ function App() {
       }
     };
 
+    const handlePointerLockChange = () => {
+      // Update UI state when pointer lock changes
+      if (document.pointerLockElement !== canvas) {
+        // Pointer lock was released
+        console.log('Pointer lock released');
+      }
+    };
+
     canvas.addEventListener('mousemove', handleMouseMove);
     canvas.addEventListener('click', handleClick);
+    document.addEventListener('pointerlockchange', handlePointerLockChange);
 
     let lastTime = 0;
     const gameLoop = (timestamp: number) => {
@@ -1055,6 +1079,10 @@ function App() {
       cancelAnimationFrame(animationRef.current);
       canvas.removeEventListener('mousemove', handleMouseMove);
       canvas.removeEventListener('click', handleClick);
+      document.removeEventListener('pointerlockchange', handlePointerLockChange);
+      if (document.pointerLockElement === canvas) {
+        document.exitPointerLock();
+      }
     };
   }, [createBricks, initGame, spawnParticles, spawnPowerUp]);
 

@@ -517,8 +517,8 @@ function App() {
       
       ctx.shadowBlur = 0;
 
-      // Draw aiming line when waiting for click
-      if (gs.waitingForClick && gs.gameStarted) {
+      // Draw aiming line when waiting for click (always when boot is stationary)
+      if (gs.waitingForClick) {
         const paddleCenterX = gs.paddle.x + gs.paddleWidth / 2;
         const paddleCenterY = gs.paddle.y;
         

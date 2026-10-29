@@ -388,6 +388,14 @@ function App() {
       ctx.fillStyle = '#0a0a1a';
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
+      // Draw purple glow at top edge
+      const topGlowGradient = ctx.createLinearGradient(0, 0, 0, 60);
+      topGlowGradient.addColorStop(0, 'rgba(131, 56, 236, 0.4)');
+      topGlowGradient.addColorStop(0.5, 'rgba(131, 56, 236, 0.15)');
+      topGlowGradient.addColorStop(1, 'rgba(131, 56, 236, 0)');
+      ctx.fillStyle = topGlowGradient;
+      ctx.fillRect(0, 0, CANVAS_WIDTH, 60);
+
       // Apply screen shake
       if (gs.screenShake > 0) {
         const shakeX = (Math.random() - 0.5) * gs.screenShake;
@@ -1077,12 +1085,6 @@ function App() {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(`Level ${gs.level}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 30);
-        
-        ctx.shadowColor = '#00f5d4';
-        ctx.shadowBlur = 15;
-        ctx.font = '22px Arial';
-        ctx.fillStyle = '#00f5d4';
-        ctx.fillText('Click to Continue', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 20);
         ctx.shadowBlur = 0;
       }
 
@@ -1167,7 +1169,7 @@ function App() {
   return (
     <div className="min-h-screen bg-[#050510] flex flex-col items-center justify-center p-4">
       {/* Header */}
-      <div className="w-full max-w-[640px] mb-4">
+      <div className="w-full max-w-[640px] mb-6">
         <div className="flex justify-between items-center px-2">
           <div className="flex items-center gap-4">
             <div className="text-cyan-400 font-mono">

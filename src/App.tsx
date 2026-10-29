@@ -322,23 +322,28 @@ function App() {
       }
       
       if (gs.waitingForClick) {
-        // Launch boot in the direction player is aiming
-        const paddleCenterX = gs.paddle.x + gs.paddleWidth / 2;
-        const paddleCenterY = gs.paddle.y;
-        
-        // Calculate angle from paddle to mouse
-        const dx = gs.mouseX - paddleCenterX;
-        const dy = gs.mouseY - paddleCenterY;
-        
-        // Only allow upward launches (mouse must be above paddle)
-        if (dy < 0) {
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          gs.ball.dx = (dx / distance) * BALL_SPEED;
-          gs.ball.dy = (dy / distance) * BALL_SPEED;
-          
-          gs.waitingForClick = false;
+        // If game hasn't started yet, just dismiss the title screen
+        if (!gs.gameStarted) {
           gs.gameStarted = true;
           setGameStarted(true);
+          // Keep waitingForClick = true so aiming mode starts
+        } else {
+          // Game has started, so launch the boot
+          const paddleCenterX = gs.paddle.x + gs.paddleWidth / 2;
+          const paddleCenterY = gs.paddle.y;
+          
+          // Calculate angle from paddle to mouse
+          const dx = gs.mouseX - paddleCenterX;
+          const dy = gs.mouseY - paddleCenterY;
+          
+          // Only allow upward launches (mouse must be above paddle)
+          if (dy < 0) {
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            gs.ball.dx = (dx / distance) * BALL_SPEED;
+            gs.ball.dy = (dy / distance) * BALL_SPEED;
+            
+            gs.waitingForClick = false;
+          }
         }
       } else if (gs.gameOver || gs.gameWon) {
         initGame(1);

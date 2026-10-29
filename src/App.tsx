@@ -1063,7 +1063,7 @@ function App() {
         ctx.shadowBlur = 15;
         ctx.font = '20px Arial';
         ctx.fillStyle = '#00f5d4';
-        ctx.fillText('Click to Start', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 20);
+
         ctx.shadowBlur = 0;
       } else if (gs.gameStarted && gs.waitingForClick && !gs.gameOver && !gs.gameWon) {
         // Show "Click to continue" overlay for level start or after losing a life
@@ -1188,7 +1188,12 @@ function App() {
           <div className="text-right font-mono">
             <span className="text-xs text-gray-500 uppercase tracking-wider">Lives</span>
             <p className="text-2xl font-bold text-red-400">
-              {'♥'.repeat(lives)}{'♡'.repeat(Math.max(0, 3 - lives))}
+              {Array.from({ length: lives }).map((_, i) => (
+                <span key={i} className="inline-block">🥾</span>
+              ))}
+              {Array.from({ length: Math.max(0, 3 - lives) }).map((_, i) => (
+                <span key={`empty-${i}`} className="inline-block opacity-30">🥾</span>
+              ))}
             </p>
           </div>
         </div>

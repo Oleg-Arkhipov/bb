@@ -406,21 +406,7 @@ function App() {
         if (gs.screenShake < 0.5) gs.screenShake = 0;
       }
 
-      // Draw background grid
-      ctx.strokeStyle = '#ffffff08';
-      ctx.lineWidth = 1;
-      for (let i = 0; i < CANVAS_WIDTH; i += 40) {
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, CANVAS_HEIGHT);
-        ctx.stroke();
-      }
-      for (let i = 0; i < CANVAS_HEIGHT; i += 40) {
-        ctx.beginPath();
-        ctx.moveTo(0, i);
-        ctx.lineTo(CANVAS_WIDTH, i);
-        ctx.stroke();
-      }
+
 
       // Update paddle
       gs.paddle.targetX = gs.mouseX - gs.paddleWidth / 2;

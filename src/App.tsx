@@ -993,6 +993,59 @@ function App() {
         ctx.restore();
       }
 
+      // Draw "GO" sign when boot is in top 20% of screen
+      if (gs.gameStarted && !gs.gameOver && !gs.gameWon && !gs.waitingForClick) {
+        const topThreshold = CANVAS_HEIGHT * 0.2;
+        if (gs.ball.y < topThreshold) {
+          // Blinking effect using sine wave
+          const blinkAlpha = 0.5 + 0.5 * Math.sin(timestamp * 0.008);
+          
+          ctx.save();
+          ctx.globalAlpha = blinkAlpha;
+          
+          // Octagon parameters
+          const octX = CANVAS_WIDTH / 2;
+          const octY = 80;
+          const octRadius = 50;
+          const sides = 8;
+          
+          // Draw octagon
+          ctx.beginPath();
+          for (let i = 0; i < sides; i++) {
+            const angle = (Math.PI * 2 * i) / sides - Math.PI / 8;
+            const x = octX + octRadius * Math.cos(angle);
+            const y = octY + octRadius * Math.sin(angle);
+            if (i === 0) {
+              ctx.moveTo(x, y);
+            } else {
+              ctx.lineTo(x, y);
+            }
+          }
+          ctx.closePath();
+          
+          // Fill with red
+          ctx.fillStyle = '#ff0000';
+          ctx.shadowColor = '#ff0000';
+          ctx.shadowBlur = 20;
+          ctx.fill();
+          
+          // Draw border
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          
+          // Draw "GO" text
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 36px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('GO', octX, octY);
+          
+          ctx.restore();
+        }
+      }
+
       // Draw UI overlays
       if (!gs.gameStarted && !gs.gameOver && !gs.gameWon && gs.waitingForClick) {
         ctx.fillStyle = 'rgba(0,0,0,0.5)';

@@ -93,7 +93,7 @@ function App() {
     waitingForClick: boolean;
     overlayDismissed: boolean;
     aiming: boolean;
-    justThrown: boolean;
+    throwCooldown: number;
     screenShake: number;
     paddleWidth: number;
     ballSpeedMultiplier: number;
@@ -209,7 +209,7 @@ function App() {
     gs.waitingForClick = true;
     gs.overlayDismissed = false;
     gs.aiming = false;
-    gs.justThrown = false;
+    gs.throwCooldown = 0;
     if (!keepScore) {
       gs.score = 0;
       gs.lives = 3;
@@ -285,7 +285,7 @@ function App() {
       waitingForClick: true,
       overlayDismissed: false,
       aiming: false,
-      justThrown: false,
+      throwCooldown: 0,
       screenShake: 0,
       paddleWidth: PADDLE_WIDTH,
       ballSpeedMultiplier: 1,
@@ -356,7 +356,7 @@ function App() {
             
             gs.waitingForClick = false;
             gs.aiming = false;
-            gs.justThrown = true;
+            gs.throwCooldown = 20; // ~20 frames of cooldown
           }
         }
       } else if (gs.gameOver || gs.gameWon) {
@@ -417,13 +417,12 @@ function App() {
 
       // Update paddle (when game is playing or in paddle positioning stage)
       if (!gs.waitingForClick || (gs.waitingForClick && gs.overlayDismissed && !gs.aiming)) {
-        // Only follow mouse if not in the frame right after throwing
-        if (!gs.justThrown) {
+        // Only follow mouse if throw cooldown has expired
+        if (gs.throwCooldown > 0) {
+          gs.throwCooldown -= deltaTime;
+        } else {
           gs.paddle.targetX = gs.mouseX - gs.paddleWidth / 2;
           gs.paddle.targetX = Math.max(0, Math.min(CANVAS_WIDTH - gs.paddleWidth, gs.paddle.targetX));
-        } else {
-          // Reset the flag after one frame
-          gs.justThrown = false;
         }
         gs.paddle.x += (gs.paddle.targetX - gs.paddle.x) * 0.15 * deltaTime;
         
@@ -667,7 +666,7 @@ function App() {
             gs.waitingForClick = true;
             gs.overlayDismissed = false;
             gs.aiming = false;
-            gs.justThrown = false;
+            gs.throwCooldown = 0;
             setCombo(0);
           }
         }

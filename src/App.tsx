@@ -352,6 +352,7 @@ function App() {
             gs.ball.dy = (dy / distance) * BALL_SPEED;
             
             gs.waitingForClick = false;
+            gs.aiming = false;
           }
         }
       } else if (gs.gameOver || gs.gameWon) {

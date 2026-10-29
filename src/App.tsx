@@ -570,9 +570,11 @@ function App() {
           }
         }
 
-        // Brick collisions
-        gs.bricks.forEach((brick) => {
-          if (!brick.alive) return;
+        // Brick collisions - only process one collision per frame
+        let collisionProcessed = false;
+        for (let i = 0; i < gs.bricks.length && !collisionProcessed; i++) {
+          const brick = gs.bricks[i];
+          if (!brick.alive) continue;
           
           if (
             gs.ball.x + gs.ball.radius > brick.x &&
@@ -622,8 +624,11 @@ function App() {
                 5
               );
             }
+            
+            // Mark collision as processed to prevent multiple bounces in same frame
+            collisionProcessed = true;
           }
-        });
+        }
 
         // Note: Level progression now happens when boot hits top edge
       }

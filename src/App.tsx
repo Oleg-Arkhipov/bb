@@ -341,14 +341,11 @@ function App() {
           gs.aiming = true;
         } else {
           // Aiming stage, launch the boot
-          const paddleCenterX = gs.paddle.x + gs.paddleWidth / 2;
-          const paddleCenterY = gs.paddle.y;
+          // Calculate angle from ball to mouse
+          const dx = gs.mouseX - gs.ball.x;
+          const dy = gs.mouseY - gs.ball.y;
           
-          // Calculate angle from paddle to mouse
-          const dx = gs.mouseX - paddleCenterX;
-          const dy = gs.mouseY - paddleCenterY;
-          
-          // Only allow upward launches (mouse must be above paddle)
+          // Only allow upward launches (mouse must be above ball)
           if (dy < 0) {
             const distance = Math.sqrt(dx * dx + dy * dy);
             gs.ball.dx = (dx / distance) * BALL_SPEED;
@@ -418,6 +415,12 @@ function App() {
         gs.paddle.targetX = gs.mouseX - gs.paddleWidth / 2;
         gs.paddle.targetX = Math.max(0, Math.min(CANVAS_WIDTH - gs.paddleWidth, gs.paddle.targetX));
         gs.paddle.x += (gs.paddle.targetX - gs.paddle.x) * 0.15 * deltaTime;
+        
+        // Keep boot on paddle center during waiting stages
+        if (gs.waitingForClick) {
+          gs.ball.x = gs.paddle.x + gs.paddleWidth / 2;
+          gs.ball.y = gs.paddle.y - gs.ball.radius;
+        }
       }
 
       // Draw paddle as carriage
@@ -536,19 +539,19 @@ function App() {
 
       // Draw aiming line when in aiming stage
       if (gs.waitingForClick && gs.overlayDismissed && gs.aiming) {
-        const paddleCenterX = gs.paddle.x + gs.paddleWidth / 2;
-        const paddleCenterY = gs.paddle.y;
+        const startX = gs.ball.x;
+        const startY = gs.ball.y;
         
-        // Calculate angle from paddle to mouse
-        const dx = gs.mouseX - paddleCenterX;
-        const dy = gs.mouseY - paddleCenterY;
+        // Calculate angle from ball to mouse
+        const dx = gs.mouseX - startX;
+        const dy = gs.mouseY - startY;
         
-        // Only show line if mouse is above paddle
+        // Only show line if mouse is above ball
         if (dy < 0) {
           const distance = Math.sqrt(dx * dx + dy * dy);
           const lineLength = 80;
-          const endX = paddleCenterX + (dx / distance) * lineLength;
-          const endY = paddleCenterY + (dy / distance) * lineLength;
+          const endX = startX + (dx / distance) * lineLength;
+          const endY = startY + (dy / distance) * lineLength;
           
           // Draw dashed line
           ctx.save();
@@ -560,7 +563,7 @@ function App() {
           ctx.shadowBlur = 10;
           
           ctx.beginPath();
-          ctx.moveTo(paddleCenterX, paddleCenterY);
+          ctx.moveTo(startX, startY);
           ctx.lineTo(endX, endY);
           ctx.stroke();
           
@@ -849,7 +852,7 @@ function App() {
 
 
       // Draw boot (ball)
-      if (!gs.gameOver && !gs.gameWon) {
+      if (!gs.gameOver && !gs.gameWon && !gs.aiming) {
         const rotation = gs.ball.rotation;
         const bootSize = gs.ball.radius * 2.4;
         

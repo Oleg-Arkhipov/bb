@@ -375,10 +375,12 @@ function App() {
 
 
 
-      // Update paddle
-      gs.paddle.targetX = gs.mouseX - gs.paddleWidth / 2;
-      gs.paddle.targetX = Math.max(0, Math.min(CANVAS_WIDTH - gs.paddleWidth, gs.paddle.targetX));
-      gs.paddle.x += (gs.paddle.targetX - gs.paddle.x) * 0.15 * deltaTime;
+      // Update paddle (only when not in confirmation mode)
+      if (!gs.waitingForClick) {
+        gs.paddle.targetX = gs.mouseX - gs.paddleWidth / 2;
+        gs.paddle.targetX = Math.max(0, Math.min(CANVAS_WIDTH - gs.paddleWidth, gs.paddle.targetX));
+        gs.paddle.x += (gs.paddle.targetX - gs.paddle.x) * 0.15 * deltaTime;
+      }
 
       // Draw paddle as carriage
       const carriageX = gs.paddle.x;

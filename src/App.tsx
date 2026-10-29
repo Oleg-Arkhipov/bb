@@ -62,7 +62,7 @@ const BRICK_TOP_OFFSET = 60;
 const BRICK_SIDE_OFFSET = 20;
 
 const BRICK_COLORS = [
-  { color: '#A0522D', glow: '#A0522D80' }, // Classic brick color (sienna)
+  { color: '#B22222', glow: '#B2222280' }, // Classic brick red color (firebrick)
 ];
 
 // Helper function to darken a hex color

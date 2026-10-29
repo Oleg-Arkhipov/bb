@@ -46,15 +46,7 @@ interface Particle {
   life: number;
 }
 
-interface PowerUp {
-  x: number;
-  y: number;
-  dy: number;
-  type: 'wide' | 'multi' | 'slow';
-  radius: number;
-  color: string;
-  glowColor: string;
-}
+
 
 // ============ CONSTANTS ============
 const CANVAS_WIDTH = 640;
@@ -90,7 +82,7 @@ function App() {
     paddle: Paddle;
     bricks: Brick[];
     particles: Particle[];
-    powerUps: PowerUp[];
+
     score: number;
     lives: number;
     level: number;
@@ -206,7 +198,7 @@ function App() {
     };
     gs.bricks = createBricks(lvl);
     gs.particles = [];
-    gs.powerUps = [];
+
     gs.level = lvl;
     gs.combo = 0;
     gs.screenShake = 0;
@@ -249,29 +241,7 @@ function App() {
     }
   }, []);
 
-  const spawnPowerUp = useCallback((x: number, y: number) => {
-    const gs = gameStateRef.current;
-    if (!gs) return;
-    if (Math.random() > 0.15) return; // 15% chance
-    
-    const types: PowerUp['type'][] = ['wide', 'multi', 'slow'];
-    const type = types[Math.floor(Math.random() * types.length)];
-    const colors: Record<string, { color: string; glow: string }> = {
-      wide: { color: '#00f5d4', glow: '#00f5d480' },
-      multi: { color: '#ff006e', glow: '#ff006e80' },
-      slow: { color: '#ffbe0b', glow: '#ffbe0b80' },
-    };
-    
-    gs.powerUps.push({
-      x,
-      y,
-      dy: 2,
-      type,
-      radius: 12,
-      color: colors[type].color,
-      glowColor: colors[type].glow,
-    });
-  }, []);
+
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -299,7 +269,7 @@ function App() {
       },
       bricks: createBricks(1),
       particles: [],
-      powerUps: [],
+
       score: 0,
       lives: 3,
       level: 1,
@@ -640,7 +610,7 @@ function App() {
                 brick.color,
                 15 + gs.combo * 2
               );
-              spawnPowerUp(brick.x + brick.width / 2, brick.y + brick.height / 2);
+
               gs.screenShake = 5 + gs.combo;
             } else {
               brick.shakeX = (Math.random() - 0.5) * 6;
@@ -656,36 +626,6 @@ function App() {
         });
 
         // Note: Level progression now happens when boot hits top edge
-
-        // Update power-ups
-        gs.powerUps = gs.powerUps.filter(pu => {
-          pu.y += pu.dy * deltaTime;
-          
-          // Check paddle collision
-          if (
-            pu.y + pu.radius >= gs.paddle.y &&
-            pu.x >= gs.paddle.x &&
-            pu.x <= gs.paddle.x + gs.paddleWidth
-          ) {
-            switch (pu.type) {
-              case 'wide':
-                gs.paddleWidth = Math.min(200, gs.paddleWidth + 30);
-                gs.paddle.width = gs.paddleWidth;
-                break;
-              case 'slow':
-                gs.ballSpeedMultiplier = Math.max(0.5, gs.ballSpeedMultiplier - 0.2);
-                break;
-              case 'multi':
-                gs.score += 50;
-                setScore(gs.score);
-                break;
-            }
-            spawnParticles(pu.x, pu.y, pu.color, 10);
-            return false;
-          }
-          
-          return pu.y < CANVAS_HEIGHT + 20;
-        });
       }
 
       // Draw bricks (brick wall pattern)
@@ -812,24 +752,7 @@ function App() {
         ctx.shadowBlur = 0;
       });
 
-      // Draw power-ups
-      gs.powerUps.forEach((pu) => {
-        ctx.shadowColor = pu.glowColor;
-        ctx.shadowBlur = 15;
-        ctx.fillStyle = pu.color;
-        ctx.beginPath();
-        ctx.arc(pu.x, pu.y, pu.radius, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // Icon
-        ctx.fillStyle = '#000';
-        ctx.font = 'bold 12px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        const icons: Record<string, string> = { wide: '↔', slow: '▼', multi: '★' };
-        ctx.fillText(icons[pu.type], pu.x, pu.y);
-        ctx.shadowBlur = 0;
-      });
+
 
       // Draw ball trail (dust trail behind boot)
       gs.ball.trail.forEach((t, i) => {
@@ -1150,7 +1073,7 @@ function App() {
         document.exitPointerLock();
       }
     };
-  }, [createBricks, initGame, spawnParticles, spawnPowerUp]);
+  }, [createBricks, initGame, spawnParticles]);
 
   return (
     <div className="min-h-screen bg-[#050510] flex flex-col items-center justify-center p-4">

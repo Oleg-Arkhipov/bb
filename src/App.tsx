@@ -996,7 +996,7 @@ function App() {
       // Draw "GO" sign when boot is in top 20% of screen
       if (gs.gameStarted && !gs.gameOver && !gs.gameWon && !gs.waitingForClick) {
         const topThreshold = CANVAS_HEIGHT * 0.2;
-        if (gs.ball.y < topThreshold) {
+        if (gs.ball.y - gs.ball.radius <= topThreshold) {
           // Blinking effect using sine wave
           const blinkAlpha = 0.5 + 0.5 * Math.sin(timestamp * 0.008);
           

@@ -1054,7 +1054,7 @@ function App() {
         ctx.shadowColor = '#3a86ff';
         ctx.shadowBlur = 30;
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 48px Arial';
+        ctx.font = '48px "Permanent Marker", cursive';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('BOOT BREAKER LIMBO', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 40);

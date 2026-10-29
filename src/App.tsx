@@ -58,7 +58,7 @@ interface PowerUp {
 
 // ============ CONSTANTS ============
 const CANVAS_WIDTH = 800;
-const CANVAS_HEIGHT = 600;
+const CANVAS_HEIGHT = 720;
 const PADDLE_WIDTH = 130;
 const PADDLE_HEIGHT = 28;
 const BALL_RADIUS = 8;

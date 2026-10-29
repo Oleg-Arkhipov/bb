@@ -421,6 +421,9 @@ function App() {
         if (!gs.justThrown) {
           gs.paddle.targetX = gs.mouseX - gs.paddleWidth / 2;
           gs.paddle.targetX = Math.max(0, Math.min(CANVAS_WIDTH - gs.paddleWidth, gs.paddle.targetX));
+        } else {
+          // Reset the flag after one frame
+          gs.justThrown = false;
         }
         gs.paddle.x += (gs.paddle.targetX - gs.paddle.x) * 0.15 * deltaTime;
         
@@ -429,9 +432,6 @@ function App() {
           gs.ball.x = gs.paddle.x + gs.paddleWidth / 2;
           gs.ball.y = gs.paddle.y - gs.ball.radius;
         }
-      } else {
-        // Reset justThrown flag when not updating paddle
-        gs.justThrown = false;
       }
 
       // Draw paddle as carriage

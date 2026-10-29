@@ -63,7 +63,7 @@ const PADDLE_WIDTH = 130;
 const PADDLE_HEIGHT = 28;
 const BALL_RADIUS = 8;
 const BALL_SPEED = 5.2;
-const BRICK_ROWS = 6;
+const BRICK_ROWS = 14;
 const BRICK_COLS = 10;
 const BRICK_HEIGHT = 25;
 const BRICK_PADDING = 4;
@@ -118,8 +118,8 @@ function App() {
     const bricks: Brick[] = [];
     const brickWidth = (CANVAS_WIDTH - 2 * BRICK_SIDE_OFFSET - (BRICK_COLS - 1) * BRICK_PADDING) / BRICK_COLS;
     
-    // Base probability increases with level (60% base + 3% per level, capped at 95%)
-    const baseProbability = Math.min(0.95, 0.6 + lvl * 0.03);
+    // Base probability increases with level (35% base + 2% per level, capped at 85%)
+    const baseProbability = Math.min(0.85, 0.35 + lvl * 0.02);
     
     // Multi-hit probability increases with level
     const multiHitChance = Math.min(0.5, 0.1 + lvl * 0.05);
@@ -1006,7 +1006,7 @@ function App() {
           // Octagon parameters
           const octX = CANVAS_WIDTH / 2;
           const octY = 80;
-          const octRadius = 50;
+          const octRadius = 32;
           const sides = 8;
           
           // Draw octagon
@@ -1031,13 +1031,13 @@ function App() {
           
           // Draw border
           ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 3;
+          ctx.lineWidth = 2;
           ctx.stroke();
           
           // Draw "GO" text
           ctx.shadowBlur = 0;
           ctx.fillStyle = '#ffffff';
-          ctx.font = 'bold 36px Arial';
+          ctx.font = 'bold 24px Arial';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText('GO', octX, octY);

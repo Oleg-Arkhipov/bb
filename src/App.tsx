@@ -557,6 +557,8 @@ function App() {
             gs.ball.dx = BALL_SPEED * (Math.random() > 0.5 ? 1 : -1);
             gs.ball.dy = -BALL_SPEED;
             gs.ball.rotation = 0;
+            gs.paddle.x = CANVAS_WIDTH / 2 - gs.paddleWidth / 2;
+            gs.paddle.targetX = gs.paddle.x;
             gs.combo = 0;
             gs.waitingForClick = true;
             setCombo(0);

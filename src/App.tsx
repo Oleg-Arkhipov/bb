@@ -91,6 +91,7 @@ function App() {
     gameOver: boolean;
     gameWon: boolean;
     waitingForClick: boolean;
+    overlayDismissed: boolean;
     screenShake: number;
     paddleWidth: number;
     ballSpeedMultiplier: number;
@@ -204,6 +205,7 @@ function App() {
     gs.paddleWidth = PADDLE_WIDTH;
     gs.ballSpeedMultiplier = 1;
     gs.waitingForClick = true;
+    gs.overlayDismissed = false;
     if (!keepScore) {
       gs.score = 0;
       gs.lives = 3;
@@ -277,6 +279,7 @@ function App() {
       gameOver: false,
       gameWon: false,
       waitingForClick: true,
+      overlayDismissed: false,
       screenShake: 0,
       paddleWidth: PADDLE_WIDTH,
       ballSpeedMultiplier: 1,
@@ -322,13 +325,16 @@ function App() {
       }
       
       if (gs.waitingForClick) {
-        // If game hasn't started yet, just dismiss the title screen
-        if (!gs.gameStarted) {
-          gs.gameStarted = true;
-          setGameStarted(true);
+        // If overlay hasn't been dismissed yet, dismiss it
+        if (!gs.overlayDismissed) {
+          if (!gs.gameStarted) {
+            gs.gameStarted = true;
+            setGameStarted(true);
+          }
+          gs.overlayDismissed = true;
           // Keep waitingForClick = true so aiming mode starts
         } else {
-          // Game has started, so launch the boot
+          // Overlay has been dismissed, so launch the boot
           const paddleCenterX = gs.paddle.x + gs.paddleWidth / 2;
           const paddleCenterY = gs.paddle.y;
           
@@ -522,8 +528,8 @@ function App() {
       
       ctx.shadowBlur = 0;
 
-      // Draw aiming line when waiting for click (always when boot is stationary)
-      if (gs.waitingForClick) {
+      // Draw aiming line when waiting for click (but not when overlays are shown)
+      if (gs.waitingForClick && gs.overlayDismissed) {
         const paddleCenterX = gs.paddle.x + gs.paddleWidth / 2;
         const paddleCenterY = gs.paddle.y;
         
@@ -639,6 +645,7 @@ function App() {
             gs.paddle.targetX = gs.paddle.x;
             gs.combo = 0;
             gs.waitingForClick = true;
+            gs.overlayDismissed = false;
             setCombo(0);
           }
         }
@@ -1031,7 +1038,7 @@ function App() {
       }
 
       // Draw UI overlays
-      if (!gs.gameStarted && !gs.gameOver && !gs.gameWon && gs.waitingForClick) {
+      if (!gs.gameStarted && !gs.gameOver && !gs.gameWon && gs.waitingForClick && !gs.overlayDismissed) {
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         
@@ -1049,7 +1056,7 @@ function App() {
         ctx.fillStyle = '#00f5d4';
 
         ctx.shadowBlur = 0;
-      } else if (gs.gameStarted && gs.waitingForClick && !gs.gameOver && !gs.gameWon) {
+      } else if (gs.gameStarted && gs.waitingForClick && !gs.gameOver && !gs.gameWon && !gs.overlayDismissed) {
         // Show "Click to continue" overlay for level start or after losing a life
         ctx.fillStyle = 'rgba(0,0,0,0.4)';
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);

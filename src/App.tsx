@@ -95,6 +95,7 @@ function App() {
     paddleWidth: number;
     ballSpeedMultiplier: number;
     mouseX: number;
+    mouseY: number;
   } | null>(null);
   const animationRef = useRef<number>(0);
   const [score, setScore] = useState(0);
@@ -181,8 +182,8 @@ function App() {
     gs.ball = {
       x: CANVAS_WIDTH / 2,
       y: CANVAS_HEIGHT - 60,
-      dx: BALL_SPEED * (Math.random() > 0.5 ? 1 : -1),
-      dy: -BALL_SPEED,
+      dx: 0,
+      dy: 0,
       radius: BALL_RADIUS,
       speed: BALL_SPEED,
       rotation: 0,
@@ -280,23 +281,28 @@ function App() {
       paddleWidth: PADDLE_WIDTH,
       ballSpeedMultiplier: 1,
       mouseX: CANVAS_WIDTH / 2,
+      mouseY: CANVAS_HEIGHT / 2,
     };
 
     const handleMouseMove = (e: MouseEvent) => {
       if (gameStateRef.current) {
         const rect = canvas.getBoundingClientRect();
         const scaleX = CANVAS_WIDTH / rect.width;
+        const scaleY = CANVAS_HEIGHT / rect.height;
         
         // Use movementX for relative movement when pointer is locked
         if (document.pointerLockElement === canvas) {
           gameStateRef.current.mouseX += e.movementX * scaleX;
+          gameStateRef.current.mouseY += e.movementY * scaleY;
         } else {
           // Fallback to absolute positioning if pointer lock is not active
           gameStateRef.current.mouseX = (e.clientX - rect.left) * scaleX;
+          gameStateRef.current.mouseY = (e.clientY - rect.top) * scaleY;
         }
         
         // Always clamp to canvas bounds
         gameStateRef.current.mouseX = Math.max(0, Math.min(CANVAS_WIDTH, gameStateRef.current.mouseX));
+        gameStateRef.current.mouseY = Math.max(0, Math.min(CANVAS_HEIGHT, gameStateRef.current.mouseY));
       }
     };
 
@@ -316,9 +322,24 @@ function App() {
       }
       
       if (gs.waitingForClick) {
-        gs.waitingForClick = false;
-        gs.gameStarted = true;
-        setGameStarted(true);
+        // Launch boot in the direction player is aiming
+        const paddleCenterX = gs.paddle.x + gs.paddleWidth / 2;
+        const paddleCenterY = gs.paddle.y;
+        
+        // Calculate angle from paddle to mouse
+        const dx = gs.mouseX - paddleCenterX;
+        const dy = gs.mouseY - paddleCenterY;
+        
+        // Only allow upward launches (mouse must be above paddle)
+        if (dy < 0) {
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          gs.ball.dx = (dx / distance) * BALL_SPEED;
+          gs.ball.dy = (dy / distance) * BALL_SPEED;
+          
+          gs.waitingForClick = false;
+          gs.gameStarted = true;
+          setGameStarted(true);
+        }
       } else if (gs.gameOver || gs.gameWon) {
         initGame(1);
       }
@@ -496,6 +517,58 @@ function App() {
       
       ctx.shadowBlur = 0;
 
+      // Draw aiming line when waiting for click
+      if (gs.waitingForClick && gs.gameStarted) {
+        const paddleCenterX = gs.paddle.x + gs.paddleWidth / 2;
+        const paddleCenterY = gs.paddle.y;
+        
+        // Calculate angle from paddle to mouse
+        const dx = gs.mouseX - paddleCenterX;
+        const dy = gs.mouseY - paddleCenterY;
+        
+        // Only show line if mouse is above paddle
+        if (dy < 0) {
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          const lineLength = 80;
+          const endX = paddleCenterX + (dx / distance) * lineLength;
+          const endY = paddleCenterY + (dy / distance) * lineLength;
+          
+          // Draw dashed line
+          ctx.save();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([8, 8]);
+          ctx.globalAlpha = 0.7;
+          ctx.shadowColor = '#ffffff';
+          ctx.shadowBlur = 10;
+          
+          ctx.beginPath();
+          ctx.moveTo(paddleCenterX, paddleCenterY);
+          ctx.lineTo(endX, endY);
+          ctx.stroke();
+          
+          // Draw arrowhead
+          const arrowSize = 8;
+          const angle = Math.atan2(dy, dx);
+          ctx.setLineDash([]);
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.moveTo(endX, endY);
+          ctx.lineTo(
+            endX - arrowSize * Math.cos(angle - Math.PI / 6),
+            endY - arrowSize * Math.sin(angle - Math.PI / 6)
+          );
+          ctx.lineTo(
+            endX - arrowSize * Math.cos(angle + Math.PI / 6),
+            endY - arrowSize * Math.sin(angle + Math.PI / 6)
+          );
+          ctx.closePath();
+          ctx.fill();
+          
+          ctx.restore();
+        }
+      }
+
       if (gs.gameStarted && !gs.gameOver && !gs.gameWon && !gs.waitingForClick) {
         // Update ball
         const speedMult = gs.ballSpeedMultiplier;
@@ -554,8 +627,8 @@ function App() {
           } else {
             gs.ball.x = CANVAS_WIDTH / 2;
             gs.ball.y = CANVAS_HEIGHT - 60;
-            gs.ball.dx = BALL_SPEED * (Math.random() > 0.5 ? 1 : -1);
-            gs.ball.dy = -BALL_SPEED;
+            gs.ball.dx = 0;
+            gs.ball.dy = 0;
             gs.ball.rotation = 0;
             gs.paddle.x = CANVAS_WIDTH / 2 - gs.paddleWidth / 2;
             gs.paddle.targetX = gs.paddle.x;

@@ -9,7 +9,6 @@ interface Ball {
   radius: number;
   speed: number;
   rotation: number;
-  trail: { x: number; y: number; alpha: number }[];
 }
 
 interface Paddle {
@@ -187,7 +186,6 @@ function App() {
       radius: BALL_RADIUS,
       speed: BALL_SPEED,
       rotation: 0,
-      trail: [],
     };
     gs.paddle = {
       x: CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2,
@@ -258,7 +256,6 @@ function App() {
         radius: BALL_RADIUS,
         speed: BALL_SPEED,
         rotation: 0,
-        trail: [],
       },
       paddle: {
         x: CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2,
@@ -506,11 +503,6 @@ function App() {
         // Update boot rotation (spin based on speed)
         gs.ball.rotation += 0.25 * deltaTime * speedMult;
 
-        // Ball trail
-        gs.ball.trail.push({ x: gs.ball.x, y: gs.ball.y, alpha: 1 });
-        if (gs.ball.trail.length > 15) gs.ball.trail.shift();
-        gs.ball.trail.forEach(t => t.alpha *= 0.9);
-
         // Wall collisions
         if (gs.ball.x - gs.ball.radius <= 0 || gs.ball.x + gs.ball.radius >= CANVAS_WIDTH) {
           gs.ball.dx = -gs.ball.dx;
@@ -563,7 +555,6 @@ function App() {
             gs.ball.dx = BALL_SPEED * (Math.random() > 0.5 ? 1 : -1);
             gs.ball.dy = -BALL_SPEED;
             gs.ball.rotation = 0;
-            gs.ball.trail = [];
             gs.combo = 0;
             gs.waitingForClick = true;
             setCombo(0);
@@ -759,15 +750,7 @@ function App() {
 
 
 
-      // Draw ball trail (dust trail behind boot)
-      gs.ball.trail.forEach((t, i) => {
-        const alpha = t.alpha * 0.35;
-        const radius = gs.ball.radius * (i / gs.ball.trail.length) * 0.6;
-        ctx.fillStyle = `rgba(139, 69, 19, ${alpha})`;
-        ctx.beginPath();
-        ctx.arc(t.x, t.y, radius, 0, Math.PI * 2);
-        ctx.fill();
-      });
+
 
       // Draw boot (ball)
       if (!gs.gameOver && !gs.gameWon) {

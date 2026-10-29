@@ -1065,12 +1065,6 @@ function App() {
         ctx.fillStyle = '#00f5d4';
         ctx.fillText('Click to Start', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 20);
         ctx.shadowBlur = 0;
-        
-        ctx.font = '14px Arial';
-        ctx.fillStyle = '#ffffff80';
-        ctx.fillText('Click to capture mouse • Move to control paddle', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
-        ctx.fillText('Hit the top edge to advance to the next level!', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 75);
-        ctx.fillText('Press ESC to release mouse', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 100);
       } else if (gs.gameStarted && gs.waitingForClick && !gs.gameOver && !gs.gameWon) {
         // Show "Click to continue" overlay for level start or after losing a life
         ctx.fillStyle = 'rgba(0,0,0,0.4)';
@@ -1212,14 +1206,6 @@ function App() {
         />
       </div>
 
-      {/* Footer info */}
-      <div className="w-full max-w-[640px] mt-4 px-2">
-        <div className="flex justify-between items-center text-xs text-gray-600">
-          <span>🖱️ Mouse to move paddle</span>
-          <span>⬆️ Hit the top edge to advance</span>
-          <span>⚡ Catch power-ups for bonuses</span>
-        </div>
-      </div>
     </div>
   );
 }

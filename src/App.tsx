@@ -914,11 +914,8 @@ function App() {
       if (gs.gameStarted && !gs.gameOver && !gs.gameWon && !gs.waitingForClick) {
         const topThreshold = CANVAS_HEIGHT * 0.2;
         if (gs.ball.y - gs.ball.radius <= topThreshold) {
-          // Blinking effect using sine wave
-          const blinkAlpha = 0.5 + 0.5 * Math.sin(timestamp * 0.008);
-          
           ctx.save();
-          ctx.globalAlpha = blinkAlpha;
+          ctx.globalAlpha = 1;
           
           // Octagon parameters
           const octX = CANVAS_WIDTH / 2;

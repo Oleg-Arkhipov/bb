@@ -93,6 +93,7 @@ function App() {
     waitingForClick: boolean;
     overlayDismissed: boolean;
     aiming: boolean;
+    justThrown: boolean;
     screenShake: number;
     paddleWidth: number;
     ballSpeedMultiplier: number;
@@ -208,6 +209,7 @@ function App() {
     gs.waitingForClick = true;
     gs.overlayDismissed = false;
     gs.aiming = false;
+    gs.justThrown = false;
     if (!keepScore) {
       gs.score = 0;
       gs.lives = 3;
@@ -283,6 +285,7 @@ function App() {
       waitingForClick: true,
       overlayDismissed: false,
       aiming: false,
+      justThrown: false,
       screenShake: 0,
       paddleWidth: PADDLE_WIDTH,
       ballSpeedMultiplier: 1,
@@ -353,6 +356,7 @@ function App() {
             
             gs.waitingForClick = false;
             gs.aiming = false;
+            gs.justThrown = true;
           }
         }
       } else if (gs.gameOver || gs.gameWon) {
@@ -413,8 +417,11 @@ function App() {
 
       // Update paddle (when game is playing or in paddle positioning stage)
       if (!gs.waitingForClick || (gs.waitingForClick && gs.overlayDismissed && !gs.aiming)) {
-        gs.paddle.targetX = gs.mouseX - gs.paddleWidth / 2;
-        gs.paddle.targetX = Math.max(0, Math.min(CANVAS_WIDTH - gs.paddleWidth, gs.paddle.targetX));
+        // Only follow mouse if not in the frame right after throwing
+        if (!gs.justThrown) {
+          gs.paddle.targetX = gs.mouseX - gs.paddleWidth / 2;
+          gs.paddle.targetX = Math.max(0, Math.min(CANVAS_WIDTH - gs.paddleWidth, gs.paddle.targetX));
+        }
         gs.paddle.x += (gs.paddle.targetX - gs.paddle.x) * 0.15 * deltaTime;
         
         // Keep boot on paddle center during waiting stages
@@ -422,6 +429,9 @@ function App() {
           gs.ball.x = gs.paddle.x + gs.paddleWidth / 2;
           gs.ball.y = gs.paddle.y - gs.ball.radius;
         }
+      } else {
+        // Reset justThrown flag when not updating paddle
+        gs.justThrown = false;
       }
 
       // Draw paddle as carriage
@@ -657,6 +667,7 @@ function App() {
             gs.waitingForClick = true;
             gs.overlayDismissed = false;
             gs.aiming = false;
+            gs.justThrown = false;
             setCombo(0);
           }
         }

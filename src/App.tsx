@@ -92,6 +92,7 @@ function App() {
     gameWon: boolean;
     waitingForClick: boolean;
     overlayDismissed: boolean;
+    aiming: boolean;
     screenShake: number;
     paddleWidth: number;
     ballSpeedMultiplier: number;
@@ -206,6 +207,7 @@ function App() {
     gs.ballSpeedMultiplier = 1;
     gs.waitingForClick = true;
     gs.overlayDismissed = false;
+    gs.aiming = false;
     if (!keepScore) {
       gs.score = 0;
       gs.lives = 3;
@@ -280,6 +282,7 @@ function App() {
       gameWon: false,
       waitingForClick: true,
       overlayDismissed: false,
+      aiming: false,
       screenShake: 0,
       paddleWidth: PADDLE_WIDTH,
       ballSpeedMultiplier: 1,
@@ -332,9 +335,12 @@ function App() {
             setGameStarted(true);
           }
           gs.overlayDismissed = true;
-          // Keep waitingForClick = true so aiming mode starts
+          // Keep waitingForClick = true so paddle positioning starts
+        } else if (!gs.aiming) {
+          // Overlay dismissed, start aiming stage
+          gs.aiming = true;
         } else {
-          // Overlay has been dismissed, so launch the boot
+          // Aiming stage, launch the boot
           const paddleCenterX = gs.paddle.x + gs.paddleWidth / 2;
           const paddleCenterY = gs.paddle.y;
           
@@ -407,8 +413,8 @@ function App() {
 
 
 
-      // Update paddle (only when not in confirmation mode)
-      if (!gs.waitingForClick) {
+      // Update paddle (when game is playing or in paddle positioning stage)
+      if (!gs.waitingForClick || (gs.waitingForClick && gs.overlayDismissed && !gs.aiming)) {
         gs.paddle.targetX = gs.mouseX - gs.paddleWidth / 2;
         gs.paddle.targetX = Math.max(0, Math.min(CANVAS_WIDTH - gs.paddleWidth, gs.paddle.targetX));
         gs.paddle.x += (gs.paddle.targetX - gs.paddle.x) * 0.15 * deltaTime;
@@ -528,8 +534,8 @@ function App() {
       
       ctx.shadowBlur = 0;
 
-      // Draw aiming line when waiting for click (but not when overlays are shown)
-      if (gs.waitingForClick && gs.overlayDismissed) {
+      // Draw aiming line when in aiming stage
+      if (gs.waitingForClick && gs.overlayDismissed && gs.aiming) {
         const paddleCenterX = gs.paddle.x + gs.paddleWidth / 2;
         const paddleCenterY = gs.paddle.y;
         
@@ -646,6 +652,7 @@ function App() {
             gs.combo = 0;
             gs.waitingForClick = true;
             gs.overlayDismissed = false;
+            gs.aiming = false;
             setCombo(0);
           }
         }

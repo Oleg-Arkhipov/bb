@@ -57,8 +57,8 @@ interface PowerUp {
 }
 
 // ============ CONSTANTS ============
-const CANVAS_WIDTH = 800;
-const CANVAS_HEIGHT = 720;
+const CANVAS_WIDTH = 640;
+const CANVAS_HEIGHT = 864;
 const PADDLE_WIDTH = 130;
 const PADDLE_HEIGHT = 28;
 const BALL_RADIUS = 8;
@@ -1173,7 +1173,7 @@ function App() {
   return (
     <div className="min-h-screen bg-[#050510] flex flex-col items-center justify-center p-4">
       {/* Header */}
-      <div className="w-full max-w-[800px] mb-4">
+      <div className="w-full max-w-[640px] mb-4">
         <div className="flex justify-between items-center px-2">
           <div className="flex items-center gap-4">
             <div className="text-cyan-400 font-mono">
@@ -1213,7 +1213,7 @@ function App() {
       </div>
 
       {/* Footer info */}
-      <div className="w-full max-w-[800px] mt-4 px-2">
+      <div className="w-full max-w-[640px] mt-4 px-2">
         <div className="flex justify-between items-center text-xs text-gray-600">
           <span>🖱️ Mouse to move paddle</span>
           <span>⬆️ Hit the top edge to advance</span>

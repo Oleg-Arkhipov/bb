@@ -2,4 +2,3 @@ node_modules/
 .next/
 build/
 *.log
-dist/

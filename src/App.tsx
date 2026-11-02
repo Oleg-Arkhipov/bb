@@ -95,6 +95,8 @@ function App() {
     aiming: boolean;
     throwCooldown: number;
     timePlayed: number;
+    paddleVelocity: number;
+    paddleDirection: number;
     screenShake: number;
     paddleWidth: number;
     ballSpeedMultiplier: number;
@@ -289,6 +291,8 @@ function App() {
       aiming: false,
       throwCooldown: 0,
       timePlayed: 0,
+      paddleVelocity: 0,
+      paddleDirection: 0,
       screenShake: 0,
       paddleWidth: PADDLE_WIDTH,
       ballSpeedMultiplier: 1,
@@ -424,10 +428,26 @@ function App() {
         if (gs.throwCooldown > 0) {
           gs.throwCooldown -= deltaTime;
         } else {
-          gs.paddle.targetX = gs.mouseX - gs.paddleWidth / 2;
-          gs.paddle.targetX = Math.max(0, Math.min(CANVAS_WIDTH - gs.paddleWidth, gs.paddle.targetX));
+          const targetX = gs.mouseX - gs.paddleWidth / 2;
+          const clampedTargetX = Math.max(0, Math.min(CANVAS_WIDTH - gs.paddleWidth, targetX));
+          
+          // Calculate direction to target
+          const dx = clampedTargetX - gs.paddle.x;
+          const direction = Math.sign(dx);
+          
+          // If direction changed or paddle stopped, reset velocity
+          if (direction !== gs.paddleDirection || Math.abs(dx) < 1) {
+            gs.paddleVelocity = 0;
+            gs.paddleDirection = direction;
+          }
+          
+          // Accelerate paddle (max speed 15, acceleration 0.5 per frame)
+          if (direction !== 0) {
+            gs.paddleVelocity = Math.min(15, gs.paddleVelocity + 0.5 * deltaTime);
+            gs.paddle.x += direction * gs.paddleVelocity * deltaTime;
+            gs.paddle.x = Math.max(0, Math.min(CANVAS_WIDTH - gs.paddleWidth, gs.paddle.x));
+          }
         }
-        gs.paddle.x += (gs.paddle.targetX - gs.paddle.x) * 0.15 * deltaTime;
         
         // Keep boot on paddle center during waiting stages
         if (gs.waitingForClick) {

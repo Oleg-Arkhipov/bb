@@ -1177,22 +1177,22 @@ function App() {
         <div className="flex justify-between items-center px-2">
           <div className="flex items-center gap-4">
             <div className="text-cyan-400 font-mono">
-              <span className="text-sm text-gray-500 uppercase tracking-wider">Score</span>
+              <span className="text-xs text-gray-500 uppercase tracking-wider">Score</span>
               <p className="text-2xl font-bold">{score.toLocaleString()}</p>
             </div>
             {combo > 1 && (
               <div className="text-pink-500 font-mono animate-pulse">
-                <span className="text-sm text-gray-500 uppercase tracking-wider">Combo</span>
+                <span className="text-xs text-gray-500 uppercase tracking-wider">Combo</span>
                 <p className="text-xl font-bold">x{combo}</p>
               </div>
             )}
           </div>
           <div className="text-center">
-            <span className="text-sm text-gray-500 uppercase tracking-wider">Level</span>
+            <span className="text-xs text-gray-500 uppercase tracking-wider">Level</span>
             <p className="text-2xl font-bold text-purple-400">{level}</p>
           </div>
           <div className="text-right font-mono">
-            <span className="text-sm text-gray-500 uppercase tracking-wider">Lives</span>
+            <span className="text-xs text-gray-500 uppercase tracking-wider">Lives</span>
             <p className="text-2xl font-bold text-red-400">
               {Array.from({ length: lives }).map((_, i) => (
                 <span key={i} className="inline-block">🥾</span>

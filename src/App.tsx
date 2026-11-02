@@ -1088,7 +1088,7 @@ function App() {
         ctx.font = 'bold 36px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(`Level ${gs.level}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 30);
+        ctx.fillText(`LEVEL ${gs.level}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 30);
         ctx.shadowBlur = 0;
       }
 
@@ -1188,7 +1188,7 @@ function App() {
             )}
           </div>
           <div className="text-center">
-            <span className="text-xs text-gray-500 uppercase tracking-wider">Level</span>
+            <span className="text-xs text-gray-500 uppercase tracking-wider">LEVEL</span>
             <p className="text-2xl font-bold text-purple-400">{level}</p>
           </div>
           <div className="text-right font-mono">

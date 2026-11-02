@@ -94,6 +94,7 @@ function App() {
     overlayDismissed: boolean;
     aiming: boolean;
     throwCooldown: number;
+    timePlayed: number;
     screenShake: number;
     paddleWidth: number;
     ballSpeedMultiplier: number;
@@ -210,6 +211,7 @@ function App() {
     gs.overlayDismissed = false;
     gs.aiming = false;
     gs.throwCooldown = 0;
+    gs.timePlayed = 0;
     if (!keepScore) {
       gs.score = 0;
       gs.lives = 3;
@@ -286,6 +288,7 @@ function App() {
       overlayDismissed: false,
       aiming: false,
       throwCooldown: 0,
+      timePlayed: 0,
       screenShake: 0,
       paddleWidth: PADDLE_WIDTH,
       ballSpeedMultiplier: 1,
@@ -601,7 +604,8 @@ function App() {
 
       if (gs.gameStarted && !gs.gameOver && !gs.gameWon && !gs.waitingForClick) {
         // Update ball
-        const speedMult = gs.ballSpeedMultiplier;
+        gs.timePlayed += deltaTime;
+        const speedMult = 1 + (gs.timePlayed * 0.0005); // Gradually increase speed over time
         gs.ball.x += gs.ball.dx * deltaTime * speedMult;
         gs.ball.y += gs.ball.dy * deltaTime * speedMult;
         
@@ -667,6 +671,7 @@ function App() {
             gs.overlayDismissed = false;
             gs.aiming = false;
             gs.throwCooldown = 0;
+            gs.timePlayed = 0;
             setCombo(0);
           }
         }
